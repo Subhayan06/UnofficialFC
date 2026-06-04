@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UnofficialFC | Subhayan Pathak</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+
+    <canvas id="tactical-bg"></canvas>
+    <div class="glow-bg"></div>
+
+    <nav>
+        <div class="logo magnetic">Unofficial<span>FC</span></div>
+        <div class="nav-links">
+            <a href="#hero" class="magnetic">System</a>
+            <a href="#founder" class="magnetic">The Mastermind</a>
+            <a href="#previews" class="magnetic">Intel</a>
+            <a href="#feedback" class="magnetic">Transmit</a>
+        </div>
+    </nav>
+
+    <section id="hero">
+        <div class="hero-content reveal">
+            <h1>The Grand Launching</h1>
+            <p class="subtitle">The supreme hub for high-IQ football tactical analysis and unfiltered transfer market news is compiling.</p>
+            
+            <div class="tactical-engine-panel">
+                <span class="panel-title">Visualizer Matrix Alpha</span>
+                <div class="tactical-switches">
+                    <button class="switch-btn active" onclick="changeTactic('press')">Execute High Press</button>
+                    <button class="switch-btn" onclick="changeTactic('block')">Drop Low Block</button>
+                </div>
+            </div>
+
+            <div class="countdown-container">
+                <div class="time-card magnetic-slight">
+                    <div class="time-val" id="days">86</div>
+                    <div class="time-label">Days</div>
+                </div>
+                <div class="time-card magnetic-slight">
+                    <div class="time-val" id="hours">00</div>
+                    <div class="time-label">Hours</div>
+                </div>
+                <div class="time-card magnetic-slight">
+                    <div class="time-val" id="mins">00</div>
+                    <div class="time-label">Mins</div>
+                </div>
+                <div class="time-card magnetic-slight">
+                    <div class="time-val" id="secs">00</div>
+                    <div class="time-label">Secs</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="founder">
+        <div class="founder-grid reveal">
+            <div class="limelight tilt-card">
+                <h2>Subhayan Pathak</h2>
+                <h3>Editor-in-Chief & Founder</h3>
+                <div class="status-badge">System Architect</div>
+            </div>
+            
+            <div class="founder-bio">
+                <p>Welcome to the inception of a new media dynasty. UnofficialFC isn't just another football blog; it's a high-performance analytical engine. The architect behind this vision is <strong>Subhayan Pathak</strong>.</p>
+                <p>Subhayan operates at the brutal intersection of elite data analysis and raw tactical intuition. He doesn't just watch the game; he dismantles its very geometry. From breaking down the shifting algorithms of a high press to exposing the financial warfare of the transfer market, his analytical depth is unmatched.</p>
+                
+                <div class="founder-quote">
+                    "We don't do surface-level narratives. <span>We expose the blueprint. UnofficialFC is built to change exactly how you perceive the geometry of the pitch."</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="previews">
+        <h2 class="section-title reveal">Classified <span>Intel</span></h2>
+        <div class="previews-grid">
+            <div class="intel-card tilt-card reveal">
+                <div class="tag blue-tag">Tactics</div>
+                <h3>Inverting the Pyramid</h3>
+                <p>Fluid visualizer tools breaking down how elite managers rip apart low blocks with inverted fullbacks and half-space overloads.</p>
+            </div>
+            <div class="intel-card tilt-card reveal" style="transition-delay: 0.1s;">
+                <div class="tag red-tag">Heatmaps</div>
+                <h3>Zone 14 Dominance</h3>
+                <p>Interactive pitch views showing pass networks, xG build-up zones, and defensive line height dynamics in real-time.</p>
+            </div>
+            <div class="intel-card tilt-card reveal" style="transition-delay: 0.2s;">
+                <div class="tag blue-tag">Finances</div>
+                <h3>The Money Machine</h3>
+                <p>Unfiltered analysis of transfer fees and FFP loopholes. Who is building a dynasty and who is burning cash?</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="feedback">
+        <h2 class="section-title reveal">Submit <span>Feedback</span></h2>
+        <div class="feedback-container reveal">
+            <form action="https://formspree.io/f/xpqewzaq" method="POST" class="feedback-form">
+                <div class="form-group">
+                    <input type="text" name="name" placeholder="Your Name" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" name="_replyto" placeholder="Your Email" required>
+                </div>
+                <div class="form-group">
+                    <textarea name="message" rows="5" placeholder="Your Tactical Insights / Feedback..." required></textarea>
+                </div>
+                <input type="text" name="_gotcha" style="display:none">
+                <button type="submit" class="submit-btn magnetic-slight">Transmit Intel</button>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <div class="chief">
+            Engineered by
+            <span>Subhayan Pathak 💙❤️</span>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
