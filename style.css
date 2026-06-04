@@ -202,8 +202,29 @@ footer { padding: 40px; text-align: center; border-top: 1px solid var(--glass-bo
     .founder-bio p { font-size: 1rem !important; }
     .previews-grid { grid-template-columns: 1fr !important; gap: 20px !important; }
     .feedback-container { padding: 25px 20px !important; }
-    nav { padding: 15px 20px !important; }
-    .logo { font-size: 1.4rem !important; }
-    .nav-links { gap: 15px !important; }
-    .nav-links a { font-size: 0.75rem !important; }
-}
+    /* ==========================================
+       FIXED MOBILE NAVBAR WRAPPING
+       ========================================== */
+    nav {
+        padding: 15px 12px !important; /* Loosen up the side choking */
+        flex-direction: column !important; /* Stack logo above links on micro screens */
+        gap: 10px !important;
+    }
+    
+    .logo {
+        font-size: 1.3rem !important;
+        letter-spacing: 0px !important;
+    }
+
+    .nav-links {
+        gap: 12px !important; /* Tighten space between link blocks */
+        width: 100% !important;
+        justify-content: center !important; /* Center links perfectly below logo */
+        flex-wrap: wrap !important; /* Force elegant wrapping if a screen is ultra-narrow */
+    }
+
+    .nav-links a {
+        font-size: 0.7rem !important; /* Drop font slightly to fit the grid perfectly */
+        letter-spacing: 0.5px !important;
+        white-space: nowrap !important; /* ABSOLUTE CRITICAL: Prevents words like Transmit from snapping in half */
+    }
