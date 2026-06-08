@@ -1,4 +1,3 @@
-// 1. Custom Fluid Cursor
 const cursorDot = document.querySelector('.cursor-dot');
 const cursorOutline = document.querySelector('.cursor-outline');
 
@@ -29,7 +28,6 @@ document.querySelectorAll('a, .magnetic, .tilt-card, .switch-btn').forEach(el =>
     });
 });
 
-// 2. Magnetic Buttons
 const magnetics = document.querySelectorAll('.magnetic, .magnetic-slight');
 magnetics.forEach(btn => {
     btn.addEventListener('mousemove', (e) => {
@@ -48,7 +46,6 @@ magnetics.forEach(btn => {
     btn.addEventListener('mouseenter', () => { btn.style.transition = 'none'; });
 });
 
-// 3. 3D Tilt Effect
 const tiltCards = document.querySelectorAll('.tilt-card');
 tiltCards.forEach(card => {
     card.addEventListener('mousemove', (e) => {
@@ -69,7 +66,6 @@ tiltCards.forEach(card => {
     });
 });
 
-// 4. Mouse Glow & Scroll Reveal
 const glowBg = document.querySelector('.glow-bg');
 document.addEventListener('mousemove', (e) => {
     const x = (e.clientX / window.innerWidth) * 100;
@@ -89,7 +85,6 @@ function reveal() {
 window.addEventListener("scroll", reveal);
 reveal();
 
-// 5. OVERHAULED HIGH-VISIBILITY INTERACTIVE TACTICAL ENGINE
 const canvas = document.getElementById('tactical-bg');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
@@ -98,23 +93,18 @@ canvas.height = window.innerHeight;
 let nodes = [];
 let currentTactic = 'press';
 
-// Coordinates for formations mapping a 4-3-3 setup on screen space
 const formations = {
     press: [
-        // Attacking Blue Team (High, wide pressing shapes)
         {x: 0.5, y: 0.15, r: false}, {x: 0.3, y: 0.25, r: false}, {x: 0.7, y: 0.25, r: false},
         {x: 0.4, y: 0.38, r: false}, {x: 0.6, y: 0.38, r: false}, {x: 0.5, y: 0.48, r: false},
         {x: 0.2, y: 0.5, r: false}, {x: 0.8, y: 0.5, r: false}, {x: 0.35, y: 0.6, r: false}, {x: 0.65, y: 0.6, r: false},
-        // Defending Red Team (Squeezed and suffocating mid-lines)
         {x: 0.5, y: 0.28, r: true}, {x: 0.45, y: 0.33, r: true}, {x: 0.55, y: 0.33, r: true},
         {x: 0.35, y: 0.42, r: true}, {x: 0.65, y: 0.42, r: true}, {x: 0.5, y: 0.43, r: true}
     ],
     block: [
-        // Attacking Blue Team (Pushed deep down controlling possession lines)
         {x: 0.5, y: 0.45, r: false}, {x: 0.25, y: 0.52, r: false}, {x: 0.75, y: 0.52, r: false},
         {x: 0.4, y: 0.55, r: false}, {x: 0.6, y: 0.55, r: false}, {x: 0.5, y: 0.62, r: false},
         {x: 0.3, y: 0.72, r: false}, {x: 0.7, y: 0.72, r: false}, {x: 0.45, y: 0.8, r: false}, {x: 0.55, y: 0.8, r: false},
-        // Defending Red Team (Ultra-compact low block rows inside the box)
         {x: 0.5, y: 0.82, r: true}, {x: 0.48, y: 0.75, r: true}, {x: 0.52, y: 0.75, r: true},
         {x: 0.42, y: 0.73, r: true}, {x: 0.58, y: 0.73, r: true}, {x: 0.5, y: 0.68, r: true}
     ]
@@ -126,7 +116,7 @@ class TacticalNode {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
         this.vx = 0; this.vy = 0;
-        this.size = 7; // Increased size for visibility
+        this.size = 7; 
     }
     update() {
         const targetList = formations[currentTactic];
@@ -137,7 +127,6 @@ class TacticalNode {
         const targetY = target.y * canvas.height;
         this.isRed = target.r;
 
-        // Fluid spring physics calculation to target locations
         let ax = (targetX - this.x) * 0.04;
         let ay = (targetY - this.y) * 0.04;
         
@@ -147,14 +136,13 @@ class TacticalNode {
         this.y += this.vy;
     }
     draw() {
-        // High visibility nodes with neon core shadows
         ctx.shadowBlur = 15;
         ctx.shadowColor = this.isRed ? '#f43f5e' : '#3b82f6';
         ctx.fillStyle = this.isRed ? '#f43f5e' : '#3b82f6';
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
-        ctx.shadowBlur = 0; // reset
+        ctx.shadowBlur = 0; 
     }
 }
 
@@ -170,12 +158,10 @@ function animateTactics() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     nodes.forEach(node => { node.update(); node.draw(); });
     
-    // Connect structural passing channels explicitly
     for(let i = 0; i < nodes.length; i++) {
         for(let j = i + 1; j < nodes.length; j++) {
             if(nodes[i].isRed === nodes[j].isRed) {
                 const dist = Math.hypot(nodes[i].x - nodes[j].x, nodes[i].y - nodes[j].y);
-                // Draw high clarity connection channels if within tactical proximity limits
                 if(dist < canvas.width * 0.22) {
                     ctx.beginPath();
                     ctx.strokeStyle = nodes[i].isRed ? 'rgba(244, 63, 94, 0.35)' : 'rgba(59, 130, 246, 0.35)';
@@ -198,7 +184,6 @@ window.addEventListener('resize', () => {
     canvas.height = window.innerHeight;
 });
 
-// Tactical Switch Engine Trigger
 function changeTactic(type) {
     currentTactic = type;
     const buttons = document.querySelectorAll('.switch-btn');
@@ -210,15 +195,12 @@ function changeTactic(type) {
     });
 }
 
-// 6. Real-Time Absolute Countdown Timer (Synced Globally)
-// TARGET LAUNCH DATE: August 29, 2026 at 00:00:00 (Exactly 86 days from today, June 4)
 const launchDate = new Date("August 29, 2026 00:00:00").getTime();
 
 function updateTimer() {
     const now = new Date().getTime();
     const distance = launchDate - now;
 
-    // If the countdown is finished
     if (distance < 0) {
         document.getElementById('days').innerText = "00";
         document.getElementById('hours').innerText = "00";
@@ -227,20 +209,17 @@ function updateTimer() {
         return;
     }
 
-    // Absolute time calculations for Days, Hours, Minutes, and Seconds
     const d = Math.floor(distance / (1000 * 60 * 60 * 24));
     const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
     const s = Math.floor((distance % (1000 * 60)) / 1000);
 
-    // Inject into DOM with padding zeroes
     document.getElementById('days').innerText = d.toString().padStart(2, '0');
     document.getElementById('hours').innerText = h.toString().padStart(2, '0');
     document.getElementById('mins').innerText = m.toString().padStart(2, '0');
     document.getElementById('secs').innerText = s.toString().padStart(2, '0');
 }
 
-// Execute loop precisely every 1 second
 setInterval(updateTimer, 1000);
 updateTimer();
 
@@ -259,59 +238,51 @@ document.addEventListener("DOMContentLoaded", () => {
             const ball = document.getElementById('anim-ball');
             const tickPop = document.getElementById('success-tick');
 
-            // Node Arrays
             const bgNodes = [document.getElementById('bg1'), document.getElementById('bg2'), document.getElementById('bg3'), document.getElementById('bg4'), document.getElementById('bg5')];
             const bkNodes = [document.getElementById('bk1'), document.getElementById('bk2'), document.getElementById('bk3'), document.getElementById('bk4'), document.getElementById('bk5')];
 
             form.style.display = "none";
             animContainer.style.display = "block";
 
-            // 1. Fire the backend payload silently
             fetch('https://api.web3forms.com/submit', { method: 'POST', body: formData }).catch(err => console.error(err));
 
-            // 2. Execute 5-Second Tactical Play
             setTimeout(() => {
-                // Blaugrana team pushes up
                 bgNodes[0].style.left = "40%"; 
                 bgNodes[1].style.left = "55%"; bgNodes[1].style.top = "20%";
                 bgNodes[2].style.left = "60%"; bgNodes[2].style.top = "70%";
                 bgNodes[3].style.left = "75%"; bgNodes[3].style.top = "15%";
-                bgNodes[4].style.left = "85%"; bgNodes[4].style.top = "45%"; // Striker #9 makes the run
+                bgNodes[4].style.left = "85%"; bgNodes[4].style.top = "45%"; 
 
-                // Black team gets scrambled
                 bkNodes[0].style.left = "70%"; bkNodes[0].style.top = "25%";
                 bkNodes[1].style.left = "80%"; bkNodes[1].style.top = "40%";
                 bkNodes[2].style.left = "75%"; bkNodes[2].style.top = "65%";
                 bkNodes[3].style.left = "65%"; bkNodes[3].style.top = "85%";
                 bkNodes[4].style.left = "55%"; bkNodes[4].style.top = "55%";
 
-                // Tiki-Taka Ball Physics over 5 seconds
                 ball.style.transition = "all 1.2s linear";
-                ball.style.left = "37%"; ball.style.top = "27%"; // Pass to #8
+                ball.style.left = "37%"; ball.style.top = "27%"; 
 
                 setTimeout(() => {
                     ball.style.transition = "all 1.5s linear";
-                    ball.style.left = "62%"; ball.style.top = "72%"; // Switch to #10
+                    ball.style.left = "62%"; ball.style.top = "72%"; 
                 }, 1200);
 
                 setTimeout(() => {
                     ball.style.transition = "all 1.3s linear";
-                    ball.style.left = "83%"; ball.style.top = "47%"; // Killer ball to #9
+                    ball.style.left = "83%"; ball.style.top = "47%"; 
                 }, 2700);
 
                 setTimeout(() => {
                     ball.style.transition = "all 0.5s cubic-bezier(0.1, 0.9, 0.2, 1)";
-                    ball.style.left = "96%"; ball.style.top = "42%"; // Top bins!
+                    ball.style.left = "96%"; ball.style.top = "42%"; 
                 }, 4200);
             }, 100);
 
-            // 3. Post-Goal Sequence (Triggers exactly after 5 seconds)
             setTimeout(() => {
                 statusText.innerText = "INTEL RECEIVED";
                 statusText.style.color = "#fff";
                 tickPop.classList.add('show');
 
-                // 4. Vanish & Reset (2.5 seconds later)
                 setTimeout(() => {
                     animContainer.style.opacity = "0"; 
 
@@ -322,7 +293,6 @@ document.addEventListener("DOMContentLoaded", () => {
                         statusText.style.color = "#00ff66";
                         tickPop.classList.remove('show');
                         
-                        // Reset Nodes instantly
                         bgNodes[0].style.left = "20%"; bgNodes[0].style.top = "50%";
                         bgNodes[1].style.left = "35%"; bgNodes[1].style.top = "25%";
                         bgNodes[2].style.left = "35%"; bgNodes[2].style.top = "75%";
@@ -340,9 +310,95 @@ document.addEventListener("DOMContentLoaded", () => {
                         
                         form.reset();
                         form.style.display = "block"; 
-                    }, 500); // Wait for fade out
-                }, 2500); // Display tick for 2.5s
-            }, 5000); // 5s animation completion
+                    }, 500); 
+                }, 2500); 
+            }, 5000); 
         });
     }
+});
+
+// ==========================================
+// 7. WEBGL 3D ENGINE (THREE.JS + GSAP)
+// ==========================================
+gsap.registerPlugin(ScrollTrigger);
+
+const webglCanvas = document.getElementById('webgl-canvas');
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ canvas: webglCanvas, alpha: true, antialias: true });
+
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+const geometry = new THREE.BufferGeometry();
+const particlesCount = 4000;
+const posArray = new Float32Array(particlesCount * 3);
+
+for(let i = 0; i < particlesCount * 3; i++) {
+    posArray[i] = (Math.random() - 0.5) * 5;
+}
+geometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+const material = new THREE.PointsMaterial({
+    size: 0.015,
+    color: 0x3b82f6, 
+    transparent: true,
+    opacity: 0.8,
+    blending: THREE.AdditiveBlending
+});
+
+const particlesMesh = new THREE.Points(geometry, material);
+scene.add(particlesMesh);
+
+camera.position.z = 3;
+
+let mouseX = 0;
+let mouseY = 0;
+document.addEventListener('mousemove', (event) => {
+    mouseX = (event.clientX / window.innerWidth) - 0.5;
+    mouseY = (event.clientY / window.innerHeight) - 0.5;
+});
+
+const tl = gsap.timeline({
+    scrollTrigger: {
+        trigger: "body",
+        start: "top top",
+        end: "bottom bottom",
+        scrub: 1.5 
+    }
+});
+
+tl.to(particlesMesh.position, {
+    x: -1.5,
+    y: 0.5,
+    z: 1.5,
+    ease: "power1.inOut"
+}, 0);
+
+tl.to(particlesMesh.rotation, {
+    x: -Math.PI / 2,
+    ease: "power2.inOut"
+}, 0.5);
+
+const clock = new THREE.Clock();
+
+function tick() {
+    const elapsedTime = clock.getElapsedTime();
+    
+    particlesMesh.rotation.y = elapsedTime * 0.15;
+    
+    camera.position.x += (mouseX * 0.5 - camera.position.x) * 0.05;
+    camera.position.y += (-mouseY * 0.5 - camera.position.y) * 0.05;
+    camera.lookAt(scene.position);
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(tick);
+}
+tick();
+
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
 });
