@@ -23,13 +23,11 @@ body {
     overflow-x: hidden;
 }
 
-/* Custom Scrollbar */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg-color); }
 ::-webkit-scrollbar-thumb { background: var(--primary-blue); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--neon-red); }
 
-/* Custom Cursor */
 .cursor-dot, .cursor-outline {
     position: fixed; top: 0; left: 0;
     transform: translate(-50%, -50%); border-radius: 50%;
@@ -38,13 +36,12 @@ body {
 .cursor-dot { width: 8px; height: 8px; background-color: var(--neon-red); }
 .cursor-outline { width: 40px; height: 40px; border: 2px solid var(--neon-blue); transition: width 0.2s, height 0.2s, background-color 0.2s; }
 
-/* The Canvas Overhaul (HIGH VISIBILITY) */
 #tactical-bg {
     position: fixed;
     top: 0; left: 0;
     width: 100vw; height: 100vh;
     z-index: -1;
-    opacity: 0.65; /* Cranked up significantly from 0.2 */
+    opacity: 0.65;
 }
 
 .glow-bg {
@@ -53,7 +50,6 @@ body {
     z-index: -1;
 }
 
-/* Nav */
 nav {
     position: fixed; top: 0; width: 100%; padding: 20px 5%;
     display: flex; justify-content: space-between; align-items: center;
@@ -66,13 +62,11 @@ nav {
 .nav-links a { color: #a8b2d1; text-decoration: none; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; transition: color 0.3s; }
 .nav-links a:hover { color: var(--neon-blue); }
 
-/* Layout Blocks */
 section {
     min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
     padding: 140px 5% 80px;
 }
 
-/* Typography */
 h1 {
     font-size: clamp(2.8rem, 7vw, 6rem);
     font-weight: 900; line-height: 1.1; margin-bottom: 15px;
@@ -84,7 +78,6 @@ h1 {
 .section-title { font-size: clamp(2.5rem, 5vw, 4rem); margin-bottom: 60px; text-transform: uppercase; text-align: center; }
 .section-title span { color: var(--neon-red); }
 
-/* Overhauled Tactical Controller Deck */
 .tactical-engine-panel {
     background: rgba(1, 4, 16, 0.85);
     border: 1px solid var(--glass-border-blue);
@@ -111,7 +104,6 @@ h1 {
     border-color: var(--neon-blue); color: var(--text-main); background: rgba(59, 130, 246, 0.1);
 }
 
-/* Countdown */
 .countdown-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
 .time-card {
     background: var(--glass-bg); backdrop-filter: blur(12px);
@@ -128,7 +120,6 @@ h1 {
 .time-val { font-size: 3.5rem; font-weight: 900; color: var(--text-main); position: relative; z-index: 2; }
 .time-label { font-size: 0.9rem; color: var(--neon-blue); text-transform: uppercase; letter-spacing: 2px; position: relative; z-index: 2; font-weight: 700; }
 
-/* The Mastermind (Subhayan) */
 #founder { background: linear-gradient(180deg, var(--bg-color), rgba(244, 63, 94, 0.03), var(--bg-color)); }
 .founder-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 60px; max-width: 1300px; align-items: center; }
 .limelight {
@@ -142,7 +133,6 @@ h1 {
 .founder-quote { font-style: italic; font-size: 1.3rem; border-left: 4px solid var(--neon-blue); padding-left: 20px; margin-top: 30px; }
 .founder-quote span { color: var(--neon-red); font-weight: 700; }
 
-/* Intel Cards */
 .previews-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; max-width: 1300px; width: 100%; }
 .intel-card {
     background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05);
@@ -161,7 +151,6 @@ h1 {
 }
 .intel-card:hover::after { border-color: var(--neon-red); transform: scale(1.3) rotate(180deg); }
 
-/* Feedback */
 #feedback { background: linear-gradient(180deg, var(--bg-color), rgba(59, 130, 246, 0.03), var(--bg-color)); }
 .feedback-container { width: 100%; max-width: 600px; background: var(--glass-bg); border: 1px solid var(--glass-border-blue); padding: 40px; border-radius: 20px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5); }
 .form-group { margin-bottom: 20px; }
@@ -173,19 +162,14 @@ h1 {
 .submit-btn { width: 100%; padding: 15px; background: linear-gradient(45deg, var(--primary-blue), var(--neon-red)); border: none; border-radius: 10px; color: var(--text-main); font-size: 1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; }
 .submit-btn:hover { box-shadow: 0 0 20px rgba(244, 63, 94, 0.4); }
 
-/* Utilities */
 .tilt-card { transform-style: preserve-3d; transform: perspective(1000px); }
 .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
 .reveal.active { opacity: 1; transform: translateY(0); }
 
-/* Footer */
 footer { padding: 40px; text-align: center; border-top: 1px solid var(--glass-border-blue); background: rgba(1, 4, 16, 0.9); }
 .chief { font-size: 0.9rem; color: #a8b2d1; text-transform: uppercase; letter-spacing: 2px; }
 .chief span { display: block; font-size: 1.5rem; font-weight: 900; color: var(--text-main); margin-top: 10px; }
 
-/* ==========================================
-   INSANE MOBILE OPTIMIZATION & RESPONSIVENESS
-   ========================================== */
 @media (max-width: 768px) {
     * { cursor: auto !important; }
     .cursor-dot, .cursor-outline { display: none !important; }
@@ -202,30 +186,18 @@ footer { padding: 40px; text-align: center; border-top: 1px solid var(--glass-bo
     .founder-bio p { font-size: 1rem !important; }
     .previews-grid { grid-template-columns: 1fr !important; gap: 20px !important; }
     .feedback-container { padding: 25px 20px !important; }
-    /* ==========================================
-       FIXED MOBILE NAVBAR WRAPPING
-       ========================================== */
-       nav {
-        padding: 15px 12px !important; /* Loosen up the side choking */
-        flex-direction: column !important; /* Stack logo above links on micro screens */
-        gap: 10px !important;
-    }
-    
-    .logo {
-        font-size: 1.3rem !important;
-        letter-spacing: 0px !important;
-    }
+    nav { padding: 15px 12px !important; flex-direction: column !important; gap: 10px !important; }
+    .logo { font-size: 1.3rem !important; letter-spacing: 0px !important; }
+    .nav-links { gap: 12px !important; width: 100% !important; justify-content: center !important; flex-wrap: wrap !important; }
+    .nav-links a { font-size: 0.7rem !important; letter-spacing: 0.5px !important; white-space: nowrap !important; }
+}
 
-    .nav-links {
-        gap: 12px !important; /* Tighten space between link blocks */
-        width: 100% !important;
-        justify-content: center !important; /* Center links perfectly below logo */
-        flex-wrap: wrap !important; /* Force elegant wrapping if a screen is ultra-narrow */
-    }
-
-    .nav-links a {
-        font-size: 0.7rem !important; /* Drop font slightly to fit the grid perfectly */
-        letter-spacing: 0.5px !important;
-        white-space: nowrap !important; /* ABSOLUTE CRITICAL: Prevents words like Transmit from snapping in half */
-    }
-   
+#webgl-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -2; 
+    pointer-events: none; 
+}
