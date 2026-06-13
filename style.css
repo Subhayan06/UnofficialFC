@@ -1,0 +1,363 @@
+:root {
+    --bg-color: #010410; 
+    --primary-blue: #1e3a8a; 
+    --neon-blue: #3b82f6;
+    --neon-red: #f43f5e; 
+    --text-main: #ffffff;
+    --glass-bg: rgba(1, 4, 16, 0.75);
+    --glass-border: rgba(244, 63, 94, 0.25);
+    --glass-border-blue: rgba(59, 130, 246, 0.3);
+}
+
+* {
+    margin: 0; padding: 0; box-sizing: border-box;
+    cursor: none;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: 'Space Grotesk', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-color); }
+::-webkit-scrollbar-thumb { background: var(--primary-blue); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--neon-red); }
+
+/* Custom Cursor */
+.cursor-dot, .cursor-outline {
+    position: fixed; top: 0; left: 0;
+    transform: translate(-50%, -50%); border-radius: 50%;
+    z-index: 9999; pointer-events: none;
+}
+.cursor-dot { width: 8px; height: 8px; background-color: var(--neon-red); }
+.cursor-outline { width: 40px; height: 40px; border: 2px solid var(--neon-blue); transition: width 0.2s, height 0.2s, background-color 0.2s; }
+
+/* ==========================================
+   3D MATRIX ENGINE CANVAS (BEHIND EVERYTHING)
+   ========================================== */
+#homepage-matrix-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* The Canvas Overhaul (HIGH VISIBILITY) */
+#tactical-bg {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    z-index: 1;
+    opacity: 0.65; /* Cranked up significantly from 0.2 */
+}
+
+.glow-bg {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(30, 58, 138, 0.25) 0%, rgba(244, 63, 94, 0.1) 30%, transparent 60%);
+    z-index: -1;
+}
+
+/* Nav */
+nav {
+    position: fixed; top: 0; width: 100%; padding: 20px 5%;
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(1, 4, 16, 0.85); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--glass-border); z-index: 1000;
+}
+.logo { font-size: 2rem; font-weight: 900; text-transform: uppercase; }
+.logo span { color: var(--neon-red); text-shadow: 0 0 15px var(--neon-red); }
+.nav-links { display: flex; gap: 30px; }
+.nav-links a { color: #a8b2d1; text-decoration: none; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; transition: color 0.3s; }
+.nav-links a:hover { color: var(--neon-blue); }
+
+/* Layout Blocks — Float above 3D matrix canvas */
+section {
+    min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
+    padding: 140px 5% 80px;
+    position: relative;
+    z-index: 10;
+}
+
+/* Typography */
+h1 {
+    font-size: clamp(2.8rem, 7vw, 6rem);
+    font-weight: 900; line-height: 1.1; margin-bottom: 15px;
+    background: linear-gradient(to right, var(--neon-blue), var(--text-main), var(--neon-red));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    text-transform: uppercase; text-shadow: 0 0 40px rgba(59, 130, 246, 0.15);
+}
+.subtitle { font-size: 1.2rem; color: #a8b2d1; margin-bottom: 40px; max-width: 650px; margin-inline: auto; }
+.section-title { font-size: clamp(2.5rem, 5vw, 4rem); margin-bottom: 60px; text-transform: uppercase; text-align: center; }
+.section-title span { color: var(--neon-red); }
+
+/* Overhauled Tactical Controller Deck — with enhanced glassmorphism */
+.tactical-engine-panel {
+    background: rgba(1, 4, 16, 0.85);
+    border: 1px solid var(--glass-border-blue);
+    padding: 25px 40px; border-radius: 16px;
+    margin-bottom: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+.panel-title {
+    display: block; font-size: 0.75rem; text-transform: uppercase;
+    color: var(--neon-blue); letter-spacing: 3px; font-weight: 700; margin-bottom: 15px;
+}
+.tactical-switches { display: flex; gap: 15px; justify-content: center; }
+.switch-btn {
+    background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #a8b2d1; padding: 14px 28px; border-radius: 8px;
+    font-family: 'Space Grotesk', sans-serif; font-weight: 700; text-transform: uppercase;
+    font-size: 0.85rem; letter-spacing: 1px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.switch-btn.active {
+    border-color: var(--neon-red); color: var(--text-main); background: rgba(244, 63, 94, 0.15);
+    box-shadow: 0 0 25px rgba(244, 63, 94, 0.3); transform: scale(1.03);
+}
+.switch-btn:hover:not(.active) {
+    border-color: var(--neon-blue); color: var(--text-main); background: rgba(59, 130, 246, 0.1);
+}
+
+/* Countdown */
+.countdown-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+.time-card {
+    background: var(--glass-bg); backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border-blue); border-radius: 20px;
+    padding: 30px; min-width: 140px; text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; overflow: hidden;
+}
+.time-card::before {
+    content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+    background: conic-gradient(transparent, var(--neon-blue), transparent 30%);
+    animation: rotate 5s linear infinite; opacity: 0.2;
+}
+@keyframes rotate { 100% { transform: rotate(360deg); } }
+.time-val { font-size: 3.5rem; font-weight: 900; color: var(--text-main); position: relative; z-index: 2; }
+.time-label { font-size: 0.9rem; color: var(--neon-blue); text-transform: uppercase; letter-spacing: 2px; position: relative; z-index: 2; font-weight: 700; }
+
+/* The Mastermind (Subhayan) */
+#founder { background: linear-gradient(180deg, var(--bg-color), rgba(244, 63, 94, 0.03), var(--bg-color)); }
+.founder-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 60px; max-width: 1300px; align-items: center; }
+.limelight {
+    border: 1px solid var(--neon-red); border-radius: 20px; padding: 50px; text-align: center;
+    background: rgba(1, 4, 16, 0.9); box-shadow: 0 20px 60px rgba(244, 63, 94, 0.15);
+}
+.limelight h2 { font-size: clamp(2.3rem, 4vw, 3.5rem); text-transform: uppercase; color: var(--text-main); }
+.limelight h3 { color: var(--neon-blue); margin: 10px 0 20px; letter-spacing: 2px; text-transform: uppercase; }
+.status-badge { display: inline-block; padding: 8px 15px; background: rgba(244, 63, 94, 0.2); border: 1px solid var(--neon-red); color: var(--neon-red); border-radius: 50px; font-size: 0.8rem; letter-spacing: 1px; text-transform: uppercase; }
+.founder-bio p { color: #a8b2d1; font-size: 1.15rem; line-height: 1.8; margin-bottom: 20px; }
+.founder-quote { font-style: italic; font-size: 1.3rem; border-left: 4px solid var(--neon-blue); padding-left: 20px; margin-top: 30px; }
+.founder-quote span { color: var(--neon-red); font-weight: 700; }
+
+/* Intel Cards */
+.previews-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; max-width: 1300px; width: 100%; }
+.intel-card {
+    background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px; padding: 40px; position: relative; overflow: hidden;
+}
+.intel-card h3 { font-size: 1.8rem; margin-bottom: 15px; }
+.intel-card p { color: #a8b2d1; line-height: 1.6; }
+.tag { display: inline-block; padding: 5px 12px; border-radius: 50px; font-size: 0.8rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+.blue-tag { background: rgba(59, 130, 246, 0.2); color: var(--neon-blue); border: 1px solid var(--neon-blue); }
+.red-tag { background: rgba(244, 63, 94, 0.2); color: var(--neon-red); border: 1px solid var(--neon-red); }
+
+.intel-card::after {
+    content: ''; position: absolute; bottom: -20px; right: -20px; width: 100px; height: 100px;
+    border: 2px dashed rgba(59, 130, 246, 0.15); border-radius: 50%; transform: rotate(45deg);
+    pointer-events: none; transition: all 0.5s ease;
+}
+.intel-card:hover::after { border-color: var(--neon-red); transform: scale(1.3) rotate(180deg); }
+
+/* Feedback */
+#feedback { background: linear-gradient(180deg, var(--bg-color), rgba(59, 130, 246, 0.03), var(--bg-color)); }
+.feedback-container { width: 100%; max-width: 600px; background: var(--glass-bg); border: 1px solid var(--glass-border-blue); padding: 40px; border-radius: 20px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5); }
+.form-group { margin-bottom: 20px; }
+.feedback-form input, .feedback-form textarea {
+    width: 100%; padding: 15px; background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px; color: var(--text-main); font-family: 'Space Grotesk', sans-serif; font-size: 1rem; transition: all 0.3s ease;
+}
+.feedback-form input:focus, .feedback-form textarea:focus { outline: none; border-color: var(--neon-red); box-shadow: 0 0 15px rgba(244, 63, 94, 0.2); background: rgba(255, 255, 255, 0.04); }
+.submit-btn { width: 100%; padding: 15px; background: linear-gradient(45deg, var(--primary-blue), var(--neon-red)); border: none; border-radius: 10px; color: var(--text-main); font-size: 1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; }
+.submit-btn:hover { box-shadow: 0 0 20px rgba(244, 63, 94, 0.4); }
+
+/* Utilities */
+.tilt-card { transform-style: preserve-3d; transform: perspective(1000px); }
+.reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.reveal.active { opacity: 1; transform: translateY(0); }
+
+/* Footer */
+footer { padding: 40px; text-align: center; border-top: 1px solid var(--glass-border-blue); background: rgba(1, 4, 16, 0.9); }
+.chief { font-size: 0.9rem; color: #a8b2d1; text-transform: uppercase; letter-spacing: 2px; }
+.chief span { display: block; font-size: 1.5rem; font-weight: 900; color: var(--text-main); margin-top: 10px; }
+
+/* ==========================================
+   INSANE MOBILE OPTIMIZATION & RESPONSIVENESS
+   ========================================== */
+@media (max-width: 768px) {
+    * { cursor: auto !important; }
+    .cursor-dot, .cursor-outline { display: none !important; }
+    section { padding: 100px 20px 40px !important; }
+    h1 { font-size: 2.3rem !important; }
+    .subtitle { font-size: 1rem !important; margin-bottom: 25px !important; }
+    .tactical-engine-panel { padding: 15px 20px !important; margin-bottom: 25px !important; }
+    .switch-btn { padding: 10px 16px !important; font-size: 0.75rem !important; }
+    .time-card { padding: 15px !important; min-width: 75px !important; }
+    .time-val { font-size: 1.8rem !important; }
+    .time-label { font-size: 0.7rem !important; }
+    .founder-grid { grid-template-columns: 1fr !important; gap: 30px !important; }
+    .limelight { padding: 35px 20px !important; }
+    .founder-bio p { font-size: 1rem !important; }
+    .previews-grid { grid-template-columns: 1fr !important; gap: 20px !important; }
+    .feedback-container { padding: 25px 20px !important; }
+    /* ==========================================
+       FIXED MOBILE NAVBAR WRAPPING
+       ========================================== */
+       nav {
+        padding: 15px 12px !important; /* Loosen up the side choking */
+        flex-direction: column !important; /* Stack logo above links on micro screens */
+        gap: 10px !important;
+    }
+    
+    .logo {
+        font-size: 1.3rem !important;
+        letter-spacing: 0px !important;
+    }
+
+    .nav-links {
+        gap: 12px !important; /* Tighten space between link blocks */
+        width: 100% !important;
+        justify-content: center !important; /* Center links perfectly below logo */
+        flex-wrap: wrap !important; /* Force elegant wrapping if a screen is ultra-narrow */
+    }
+
+    .nav-links a {
+        font-size: 0.7rem !important; /* Drop font slightly to fit the grid perfectly */
+        letter-spacing: 0.5px !important;
+        white-space: nowrap !important; /* ABSOLUTE CRITICAL: Prevents words like Transmit from snapping in half */
+    }
+}
+
+/* ==========================================
+   PREMIUM CTA: 2006 UCL FINAL MUSEUM
+   ========================================== */
+#ucl-cta {
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 100px 5%;
+    background: linear-gradient(180deg, var(--bg-color), rgba(165, 0, 68, 0.04), var(--bg-color));
+}
+
+.cta-container {
+    text-align: center;
+    max-width: 780px;
+    margin: 0 auto;
+}
+
+.cta-description {
+    font-size: 1.35rem;
+    color: #c8d0e0;
+    line-height: 1.7;
+    margin-bottom: 50px;
+    letter-spacing: 0.3px;
+    font-weight: 400;
+    text-shadow: 0 0 30px rgba(59, 130, 246, 0.08);
+}
+
+/* ———— Premium Blaugrana Button ———— */
+.btn-ucl-premium {
+    display: inline-block;
+    position: relative;
+    padding: 18px 52px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #ffffff;
+    text-decoration: none;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #004D98 0%, #A50044 100%);
+    background-size: 200% 200%;
+    background-position: 0% 50%;
+    box-shadow:
+        0 0 25px rgba(0, 77, 152, 0.35),
+        0 0 50px rgba(165, 0, 68, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    /* Frosted glassmorphic border */
+    border: 1.5px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    /* Multi-layered deep text glow */
+    text-shadow:
+        0 0 10px rgba(255, 255, 255, 0.8),
+        0 0 25px rgba(165, 0, 68, 0.6),
+        0 0 50px rgba(0, 77, 152, 0.4),
+        0 0 80px rgba(165, 0, 68, 0.3);
+    overflow: hidden;
+    z-index: 1;
+}
+
+/* Pseudo-element for animated gradient shimmer */
+.btn-ucl-premium::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), transparent, rgba(255, 255, 255, 0.15));
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+/* Hover state */
+.btn-ucl-premium:hover {
+    transform: scale(1.06);
+    background-position: 100% 50%;
+    box-shadow:
+        0 0 35px rgba(0, 77, 152, 0.55),
+        0 0 70px rgba(165, 0, 68, 0.45),
+        0 0 100px rgba(165, 0, 68, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    border-color: rgba(255, 255, 255, 0.35);
+    /* Intensified text glow on hover */
+    text-shadow:
+        0 0 15px rgba(255, 255, 255, 1),
+        0 0 35px rgba(165, 0, 68, 0.9),
+        0 0 65px rgba(0, 77, 152, 0.7),
+        0 0 100px rgba(165, 0, 68, 0.5),
+        0 0 140px rgba(0, 77, 152, 0.3);
+}
+
+.btn-ucl-premium:hover::before {
+    opacity: 1;
+}
+
+/* Active / click */
+.btn-ucl-premium:active {
+    transform: scale(0.98);
+}
+
+/* Mobile responsiveness for CTA */
+@media (max-width: 768px) {
+    #ucl-cta { min-height: 50vh; padding: 80px 20px; }
+    .cta-description { font-size: 1.1rem; margin-bottom: 35px; }
+    .btn-ucl-premium { padding: 15px 36px; font-size: 0.9rem; letter-spacing: 2px; }
+}
+   
