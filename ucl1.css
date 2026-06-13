@@ -1,0 +1,471 @@
+/* ========================================
+   2006 UCL Final — Digital Museum
+   Custom Styles · Fonts · Neon · Glassmorphism
+   ======================================== */
+
+/* ========== FONT IMPORTS ========== */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap');
+
+/* ========== FONT FAMILY DECLARATIONS ========== */
+.font-heading {
+  font-family: 'Syne', sans-serif;
+}
+
+.font-body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* ========== CSS CUSTOM PROPERTIES ========== */
+:root {
+  --barca-blue: #1a1a6b;
+  --barca-red: #a50034;
+  --arsenal-red: #db0007;
+  --arsenal-yellow: #f5c842;
+  --pitch-green-dark: #0d2818;
+  --pitch-green-mid: #1a4a2e;
+  --pitch-green-light: #2d6b3f;
+  --neon-glow-arsenal: 0 0 10px rgba(219, 0, 7, 0.6), 0 0 30px rgba(219, 0, 7, 0.3), 0 0 60px rgba(219, 0, 7, 0.15);
+  --neon-glow-barca: 0 0 10px rgba(165, 0, 52, 0.6), 0 0 30px rgba(165, 0, 52, 0.3), 0 0 60px rgba(165, 0, 52, 0.15);
+  --neon-glow-white: 0 0 10px rgba(255, 255, 255, 0.4), 0 0 30px rgba(255, 255, 255, 0.2), 0 0 60px rgba(255, 255, 255, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+}
+
+/* ========== BASE RESET & GLOBAL ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #0a0a0f;
+  color: #ffffff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: rgba(165, 0, 52, 0.4);
+  color: #ffffff;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0f;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ========== GLASSMORPHIC PANEL ========== */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* ========== NEON TEXT GLOWS ========== */
+.neon-text-arsenal {
+  text-shadow: 0 0 7px rgba(219, 0, 7, 0.6), 0 0 20px rgba(219, 0, 7, 0.3);
+}
+
+.neon-text-barca {
+  text-shadow: 0 0 7px rgba(165, 0, 52, 0.6), 0 0 20px rgba(165, 0, 52, 0.3);
+}
+
+.neon-text-white {
+  text-shadow: 0 0 7px rgba(255, 255, 255, 0.4), 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+/* ========== MULTI-LAYERED GLOW UTILITIES ========== */
+.glow-arsenal {
+  box-shadow: 0 0 10px rgba(219, 0, 7, 0.4), 0 0 30px rgba(219, 0, 7, 0.2), 0 0 60px rgba(219, 0, 7, 0.1);
+}
+
+.glow-barca {
+  box-shadow: 0 0 10px rgba(165, 0, 52, 0.4), 0 0 30px rgba(165, 0, 52, 0.2), 0 0 60px rgba(165, 0, 52, 0.1);
+}
+
+.glow-white {
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2), 0 0 30px rgba(255, 255, 255, 0.1), 0 0 60px rgba(255, 255, 255, 0.05);
+}
+
+/* ========== COLOR UTILITIES ========== */
+.text-arsenal-red {
+  color: var(--arsenal-red);
+}
+
+.text-barca-red {
+  color: var(--barca-red);
+}
+
+.text-arsenal-yellow {
+  color: var(--arsenal-yellow);
+}
+
+.bg-arsenal-red {
+  background-color: var(--arsenal-red);
+}
+
+.bg-barca-red {
+  background-color: var(--barca-red);
+}
+
+.bg-pitch-green-dark {
+  background-color: var(--pitch-green-dark);
+}
+
+.border-arsenal-red {
+  border-color: var(--arsenal-red);
+}
+
+.border-barca-red {
+  border-color: var(--barca-red);
+}
+
+/* ========== HERO SPLIT SCREEN ANIMATION ========== */
+#hero-left,
+#hero-right {
+  transition: width 1.2s cubic-bezier(0.77, 0, 0.175, 1), transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+#hero-left.shrink {
+  width: 5% !important;
+}
+
+#hero-right.shrink {
+  width: 5% !important;
+}
+
+/* ========== PRE-LOADER ========== */
+#preloader {
+  transition: opacity 1s ease, visibility 1s ease;
+}
+
+#preloader.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* ========== STICKY NAV ========== */
+#sticky-nav {
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+#sticky-nav.visible {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0);
+}
+
+/* ========== WORD-BY-WORD SCROLLTELLING ========== */
+.word {
+  transition: opacity 0.4s ease, text-shadow 0.4s ease;
+  cursor: default;
+}
+
+.word.active {
+  opacity: 1 !important;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.3), 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.word.inactive {
+  opacity: 0.65 !important;
+  text-shadow: none;
+}
+
+/* ========== TACTICAL PITCH CANVAS BASE ========== */
+#tactical-pitch {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ========== MOMENT TABS ========== */
+.moment-tab {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.moment-tab:hover {
+  filter: brightness(1.5);
+}
+
+.moment-tab.active {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+/* ========== MOMENT ANALYSIS TRANSITIONS ========== */
+.moment-analysis {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.moment-analysis.hidden {
+  display: none;
+}
+
+/* ========== RAIN CANVAS GLOBAL ========== */
+#rain-canvas-global {
+  opacity: 0.6;
+}
+
+/* ========== RESPONSIVE: TABLETS & BELOW ========== */
+@media (max-width: 1024px) {
+  #section-1 {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+  }
+
+  #section-2 {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+
+  #section-3 {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+  }
+
+  .essay-paragraph p {
+    font-size: 1.25rem !important;
+    line-height: 1.8 !important;
+  }
+}
+
+/* ========== RESPONSIVE: MOBILE < 768px ========== */
+@media (max-width: 767px) {
+  body {
+    font-size: 14px;
+  }
+
+  .font-heading {
+    letter-spacing: -0.01em;
+  }
+
+  /* Hero section */
+  #hero-left,
+  #hero-right {
+    width: 50% !important;
+  }
+
+  #hero-left .w-48,
+  #hero-right .w-48 {
+    width: 6rem;
+    height: 6rem;
+  }
+
+  #hero-vs span {
+    font-size: 2.5rem;
+  }
+
+  /* Preloader */
+  #preloader h1 {
+    font-size: 2rem;
+  }
+
+  /* Section 1 */
+  #section-1 h2 {
+    font-size: 2rem !important;
+  }
+
+  #section-1 .text-lg.md\:text-xl {
+    font-size: 0.95rem !important;
+  }
+
+  .essay-paragraph p {
+    font-size: 1rem !important;
+    line-height: 1.75 !important;
+  }
+
+  .essay-paragraph .word {
+    margin-right: 0.15em;
+  }
+
+  /* Sticky Nav */
+  #sticky-nav .max-w-7xl {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  #sticky-nav .w-8 {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  #sticky-nav .text-xs {
+    font-size: 0.6rem;
+  }
+
+  /* Section 2 */
+  #section-2 h2 {
+    font-size: 1.75rem !important;
+  }
+
+  .moment-tab {
+    font-size: 0.6rem !important;
+    padding: 0.4rem 0.8rem !important;
+  }
+
+  .moment-analysis h3 {
+    font-size: 1.1rem !important;
+  }
+
+  .moment-analysis p {
+    font-size: 0.85rem !important;
+  }
+
+  /* Section 3 */
+  #section-3 h2 {
+    font-size: 2rem !important;
+  }
+
+  #section-3 h3 {
+    font-size: 0.95rem !important;
+  }
+
+  #section-3 p {
+    font-size: 0.85rem !important;
+  }
+
+  .grid-cols-1.md\:grid-cols-2 {
+    gap: 2rem;
+  }
+
+  .sticky.top-32 {
+    position: relative;
+    top: 0;
+  }
+
+  /* Footer */
+  footer .text-xs {
+    font-size: 0.65rem;
+  }
+
+  /* Canvas legends - mobile */
+  .bottom-4.left-4 {
+    bottom: 0.5rem;
+    left: 0.5rem;
+  }
+
+  .bottom-4.left-4 span {
+    font-size: 0.55rem;
+  }
+
+  /* Rain opacity reduces on mobile for performance */
+  #rain-canvas-global {
+    opacity: 0.35;
+  }
+
+  #rain-canvas-hero {
+    opacity: 0.35;
+  }
+
+  /* Glass panel margins on mobile */
+  #sticky-nav .glass-panel {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    border-radius: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  /* Section padding */
+  #section-1, #section-2, #section-3 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .space-y-32 {
+    margin-top: 0;
+  }
+
+  .space-y-32 > * + * {
+    margin-top: 6rem;
+  }
+}
+
+/* ========== RESPONSIVE: VERY SMALL < 400px ========== */
+@media (max-width: 400px) {
+  #hero-left .w-48,
+  #hero-right .w-48 {
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+
+  #hero-vs span {
+    font-size: 1.8rem;
+  }
+
+  #section-1 h2 {
+    font-size: 1.5rem !important;
+  }
+
+  #section-2 h2 {
+    font-size: 1.4rem !important;
+  }
+
+  #section-3 h2 {
+    font-size: 1.6rem !important;
+  }
+}
+
+/* ========== REDUCED MOTION ========== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  #preloader {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ========== PRINT STYLES ========== */
+@media print {
+  #preloader,
+  #rain-canvas-global,
+  #rain-canvas-hero {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  .glass-panel {
+    background: #f5f5f5;
+    backdrop-filter: none;
+    border: 1px solid #ddd;
+  }
+}
