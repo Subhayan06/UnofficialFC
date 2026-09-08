@@ -63,12 +63,23 @@ if (cursorDot && cursorOutline && gsap) {
 const magnetics = document.querySelectorAll('.magnetic, .magnetic-slight');
 magnetics.forEach(btn => {
     let leaveTimeline;
+    let rect, h, w, left, top;
+
+    const updateRect = () => {
+        rect = btn.getBoundingClientRect();
+        h = rect.width / 2;
+        w = rect.height / 2;
+        left = rect.left;
+        top = rect.top;
+    };
+
+    btn.addEventListener('mouseenter', updateRect);
+    window.addEventListener('resize', updateRect);
+
     btn.addEventListener('mousemove', (e) => {
-        const rect = btn.getBoundingClientRect();
-        const h = rect.width / 2;
-        const w = rect.height / 2;
-        const x = e.clientX - rect.left - h;
-        const y = e.clientY - rect.top - w;
+        if (!rect) updateRect();
+        const x = e.clientX - left - h;
+        const y = e.clientY - top - w;
         const pull = btn.classList.contains('magnetic-slight') ? 0.1 : 0.3;
 
         // Kill any leave tween in progress
@@ -214,7 +225,7 @@ class TacticalNode {
     update() {
         const targetList = formations[currentTactic];
         if (this.index >= targetList.length) return;
-        
+
         const target = targetList[this.index];
         const targetX = target.x * canvas.width;
         const targetY = target.y * canvas.height;
@@ -222,7 +233,7 @@ class TacticalNode {
 
         let ax = (targetX - this.x) * 0.04;
         let ay = (targetY - this.y) * 0.04;
-        
+
         this.vx = (this.vx + ax) * 0.85;
         this.vy = (this.vy + ay) * 0.85;
         this.x += this.vx;
@@ -250,7 +261,7 @@ function initTactics() {
 function animateTactics() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     nodes.forEach(node => { node.update(); node.draw(); });
-    
+
     for(let i = 0; i < nodes.length; i++) {
         for(let j = i + 1; j < nodes.length; j++) {
             if(nodes[i].isRed === nodes[j].isRed) {
@@ -281,7 +292,7 @@ function changeTactic(type) {
     currentTactic = type;
     const buttons = document.querySelectorAll('.switch-btn');
     buttons.forEach(b => b.classList.remove('active'));
-    
+
     buttons.forEach(b => {
         if(type === 'press' && b.textContent.includes('High Press')) b.classList.add('active');
         if(type === 'block' && b.textContent.includes('Low Block')) b.classList.add('active');
@@ -324,14 +335,14 @@ updateTimer();
 // ============================================================
 document.addEventListener("DOMContentLoaded", () => {
     const contactForm = document.getElementById('contactForm');
-    
+
     if(contactForm) {
         contactForm.addEventListener('submit', function(e) {
-            e.preventDefault(); 
-            
+            e.preventDefault();
+
             const form = e.target;
             const formData = new FormData(form);
-            
+
             const animContainer = document.getElementById('mission-control');
             const statusText = document.getElementById('status-text');
             const ball = document.getElementById('anim-ball');
@@ -394,17 +405,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 bgNodes[2].style.left = '35%'; bgNodes[2].style.top = '75%';
                 bgNodes[3].style.left = '45%'; bgNodes[3].style.top = '10%';
                 bgNodes[4].style.left = '50%'; bgNodes[4].style.top = '85%';
-                
+
                 bkNodes[0].style.left = '60%'; bkNodes[0].style.top = '20%';
                 bkNodes[1].style.left = '65%'; bkNodes[1].style.top = '40%';
                 bkNodes[2].style.left = '65%'; bkNodes[2].style.top = '60%';
                 bkNodes[3].style.left = '60%'; bkNodes[3].style.top = '80%';
                 bkNodes[4].style.left = '45%'; bkNodes[4].style.top = '50%';
-                
+
                 ball.style.left = '22%';
                 ball.style.top = '52%';
                 ball.style.transition = 'none';
-                
+
                 form.reset();
                 form.style.display = 'block';
             });
