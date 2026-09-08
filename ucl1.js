@@ -21,32 +21,42 @@
       finished: ['idle'],
     },
     enter(state) {
-      if (this.transitions[this.current].includes(state)) {
+      if (this.transitions[this.current] && this.transitions[this.current].includes(state)) {
         this.current = state;
         this.onChange(state);
       }
     },
     onChange(state) {
       console.log(`[StateMachine] → ${state}`);
-      document.dispatchEvent(new CustomEvent('stateChange', { detail: { state } }));
+      const target = typeof document !== 'undefined' ? document : globalThis;
+      if (target && typeof target.dispatchEvent === 'function') {
+        target.dispatchEvent(new CustomEvent('stateChange', { detail: { state } }));
+      }
     },
   };
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { StateMachine };
+  }
 
   // ============================================
   // DOM REFS
   // ============================================
-  const preloader = document.getElementById('preloader');
-  const preloaderBar = document.getElementById('preloader-bar');
-  const heroLeft = document.getElementById('hero-left');
-  const heroRight = document.getElementById('hero-right');
-  const heroVS = document.getElementById('hero-vs');
-  const stickyNav = document.getElementById('sticky-nav');
-  const rainCanvasHero = document.getElementById('rain-canvas-hero');
-  const rainCanvasGlobal = document.getElementById('rain-canvas-global');
-  const tacticalCanvas = document.getElementById('tactical-pitch');
-  const heatmapCanvas = document.getElementById('heatmap-canvas');
-  const momentTabs = document.querySelectorAll('.moment-tab');
-  const momentAnalyses = document.querySelectorAll('.moment-analysis');
+  const getEl = (id) => typeof document !== 'undefined' && typeof document.getElementById === 'function' ? document.getElementById(id) : null;
+  const queryAll = (sel) => typeof document !== 'undefined' && typeof document.querySelectorAll === 'function' ? document.querySelectorAll(sel) : [];
+
+  const preloader = getEl('preloader');
+  const preloaderBar = getEl('preloader-bar');
+  const heroLeft = getEl('hero-left');
+  const heroRight = getEl('hero-right');
+  const heroVS = getEl('hero-vs');
+  const stickyNav = getEl('sticky-nav');
+  const rainCanvasHero = getEl('rain-canvas-hero');
+  const rainCanvasGlobal = getEl('rain-canvas-global');
+  const tacticalCanvas = getEl('tactical-pitch');
+  const heatmapCanvas = getEl('heatmap-canvas');
+  const momentTabs = queryAll('.moment-tab');
+  const momentAnalyses = queryAll('.moment-analysis');
 
   // ============================================
   // PRE-LOADER
@@ -1052,9 +1062,11 @@
   // ============================================
   // START
   // ============================================
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
+  if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
   }
 })();
