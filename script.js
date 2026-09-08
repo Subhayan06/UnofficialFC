@@ -344,7 +344,7 @@ document.addEventListener("DOMContentLoaded", () => {
             animContainer.style.display = "block";
 
             // Fire the backend payload silently
-            fetch('https://api.web3forms.com/submit', { method: 'POST', body: formData }).catch(err => console.error(err));
+            fetch('/api/feedback', { method: 'POST', body: formData }).catch(err => console.error(err));
 
             // ---- GSAP POWERED TACTICAL PLAY ----
             // Create master timeline
