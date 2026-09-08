@@ -291,7 +291,7 @@ function changeTactic(type) {
 // ============================================================
 // 7. REAL-TIME COUNTDOWN TIMER (unchanged, pure JS)
 // ============================================================
-const launchDate = new Date("August 29, 2026 00:00:00").getTime();
+const launchDate = new Date("September 18, 2026 00:00:00 UTC").getTime();
 
 function updateTimer() {
     const now = new Date().getTime();
