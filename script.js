@@ -5,7 +5,8 @@
 
 // ---- Ensure GSAP is loaded before proceeding ----
 if (typeof gsap === 'undefined') {
-    console.warn('GSAP not loaded - falling back');
+    console.error('GSAP is required but not loaded.');
+    throw new Error('GSAP library is required but not loaded.');
 }
 
 // ============================================================
