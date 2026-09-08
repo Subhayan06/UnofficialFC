@@ -231,6 +231,7 @@
       this.running = false;
       this.FPS = 30;
       this.totalFrames = 600; // 20 seconds at 30fps
+      this.lastFrameTime = 0;
       this.resize();
 
       // ============ FIXED PITCH DIMENSIONS (normalized 0-100) ============
@@ -567,6 +568,7 @@
       if (idx >= 0 && idx < this.moments.length) {
         this.currentMoment = idx;
         this.frame = 0;
+        this.lastFrameTime = 0;
         this.drawFrame(idx, 0);
       }
     }
@@ -575,20 +577,30 @@
       if (this.running) return;
       this.running = true;
       this.frame = 0;
+      this.lastFrameTime = performance.now();
       const interval = 1000 / this.FPS;
-      this.animId = setInterval(() => {
-        if (this.frame >= this.totalFrames) {
-          this.frame = 0;
+
+      const loop = (timestamp) => {
+        if (!this.running) return;
+        const elapsed = timestamp - this.lastFrameTime;
+        if (elapsed >= interval) {
+          this.lastFrameTime = timestamp - (elapsed % interval);
+          if (this.frame >= this.totalFrames) {
+            this.frame = 0;
+          }
+          this.drawFrame(this.currentMoment, this.frame);
+          this.frame++;
         }
-        this.drawFrame(this.currentMoment, this.frame);
-        this.frame++;
-      }, interval);
+        this.animId = requestAnimationFrame(loop);
+      };
+
+      this.animId = requestAnimationFrame(loop);
     }
 
     stopAnimation() {
       this.running = false;
       if (this.animId) {
-        clearInterval(this.animId);
+        cancelAnimationFrame(this.animId);
         this.animId = null;
       }
     }
