@@ -35,18 +35,18 @@
   // ============================================
   // DOM REFS
   // ============================================
-  const preloader = document.getElementById('preloader');
-  const preloaderBar = document.getElementById('preloader-bar');
-  const heroLeft = document.getElementById('hero-left');
-  const heroRight = document.getElementById('hero-right');
-  const heroVS = document.getElementById('hero-vs');
-  const stickyNav = document.getElementById('sticky-nav');
-  const rainCanvasHero = document.getElementById('rain-canvas-hero');
-  const rainCanvasGlobal = document.getElementById('rain-canvas-global');
-  const tacticalCanvas = document.getElementById('tactical-pitch');
-  const heatmapCanvas = document.getElementById('heatmap-canvas');
-  const momentTabs = document.querySelectorAll('.moment-tab');
-  const momentAnalyses = document.querySelectorAll('.moment-analysis');
+  const preloader = typeof document !== 'undefined' ? document.getElementById('preloader') : null;
+  const preloaderBar = typeof document !== 'undefined' ? document.getElementById('preloader-bar') : null;
+  const heroLeft = typeof document !== 'undefined' ? document.getElementById('hero-left') : null;
+  const heroRight = typeof document !== 'undefined' ? document.getElementById('hero-right') : null;
+  const heroVS = typeof document !== 'undefined' ? document.getElementById('hero-vs') : null;
+  const stickyNav = typeof document !== 'undefined' ? document.getElementById('sticky-nav') : null;
+  const rainCanvasHero = typeof document !== 'undefined' ? document.getElementById('rain-canvas-hero') : null;
+  const rainCanvasGlobal = typeof document !== 'undefined' ? document.getElementById('rain-canvas-global') : null;
+  const tacticalCanvas = typeof document !== 'undefined' ? document.getElementById('tactical-pitch') : null;
+  const heatmapCanvas = typeof document !== 'undefined' ? document.getElementById('heatmap-canvas') : null;
+  const momentTabs = typeof document !== 'undefined' ? document.querySelectorAll('.moment-tab') : [];
+  const momentAnalyses = typeof document !== 'undefined' ? document.querySelectorAll('.moment-analysis') : [];
 
   // ============================================
   // PRE-LOADER
@@ -224,14 +224,14 @@
   class TacticalPitch {
     constructor(canvas) {
       this.canvas = canvas;
-      this.ctx = canvas.getContext('2d');
+      this.ctx = canvas ? canvas.getContext('2d') : null;
       this.currentMoment = 0;
       this.frame = 0;
       this.animId = null;
       this.running = false;
       this.FPS = 30;
       this.totalFrames = 600; // 20 seconds at 30fps
-      this.resize();
+      if (canvas) this.resize();
 
       // ============ FIXED PITCH DIMENSIONS (normalized 0-100) ============
       this.pitchW = 100;
@@ -386,11 +386,12 @@
     }
 
     resize() {
-      const rect = this.canvas.parentElement.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
+      if (!this.canvas) return;
+      const rect = this.canvas.parentElement ? this.canvas.parentElement.getBoundingClientRect() : { width: 800, height: 600 };
+      const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) || 1;
       this.canvas.width = rect.width * dpr;
       this.canvas.height = rect.height * dpr;
-      this.ctx.scale(dpr, dpr);
+      if (this.ctx) this.ctx.scale(dpr, dpr);
       this.w = rect.width;
       this.h = rect.height;
     }
@@ -1052,9 +1053,16 @@
   // ============================================
   // START
   // ============================================
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  }
+
+  // Export for Node.js / testing environments
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { TacticalPitch };
   }
 })();
