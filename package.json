@@ -1,0 +1,11 @@
+{
+  "name": "unofficialfc",
+  "version": "1.0.0",
+  "description": "UnofficialFC digital football platform & interactive tactical museum",
+  "scripts": {
+    "test": "node --test"
+  },
+  "keywords": [],
+  "author": "Subhayan Pathak",
+  "license": "MIT"
+}
