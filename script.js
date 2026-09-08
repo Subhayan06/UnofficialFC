@@ -343,8 +343,24 @@ document.addEventListener("DOMContentLoaded", () => {
             form.style.display = "none";
             animContainer.style.display = "block";
 
-            // Fire the backend payload silently
-            fetch('https://api.web3forms.com/submit', { method: 'POST', body: formData }).catch(err => console.error(err));
+            let fetchFailed = false;
+
+            // Fire the backend payload and handle response/errors
+            fetch('https://api.web3forms.com/submit', { method: 'POST', body: formData })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .catch(err => {
+                    console.error('Form submission error:', err);
+                    fetchFailed = true;
+                    if (statusText) {
+                        statusText.innerText = 'TRANSMISSION FAILED';
+                        statusText.style.color = '#f43f5e';
+                    }
+                });
 
             // ---- GSAP POWERED TACTICAL PLAY ----
             // Create master timeline
@@ -371,8 +387,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Phase 3: Post-goal — update status + show success tick
             masterTL.call(() => {
-                statusText.innerText = 'INTEL RECEIVED';
-                statusText.style.color = '#fff';
+                if (!fetchFailed && statusText) {
+                    statusText.innerText = 'INTEL RECEIVED';
+                    statusText.style.color = '#fff';
+                }
             }, [], '+=0.1');
             masterTL.to(tickPop, { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(2)' }, '+=0');
             masterTL.to(tickPop, { opacity: 0, duration: 0.3 }, '+=2');
