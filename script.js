@@ -214,7 +214,7 @@ class TacticalNode {
     update() {
         const targetList = formations[currentTactic];
         if (this.index >= targetList.length) return;
-        
+
         const target = targetList[this.index];
         const targetX = target.x * canvas.width;
         const targetY = target.y * canvas.height;
@@ -222,7 +222,7 @@ class TacticalNode {
 
         let ax = (targetX - this.x) * 0.04;
         let ay = (targetY - this.y) * 0.04;
-        
+
         this.vx = (this.vx + ax) * 0.85;
         this.vy = (this.vy + ay) * 0.85;
         this.x += this.vx;
@@ -250,7 +250,7 @@ function initTactics() {
 function animateTactics() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     nodes.forEach(node => { node.update(); node.draw(); });
-    
+
     for(let i = 0; i < nodes.length; i++) {
         for(let j = i + 1; j < nodes.length; j++) {
             if(nodes[i].isRed === nodes[j].isRed) {
@@ -281,7 +281,7 @@ function changeTactic(type) {
     currentTactic = type;
     const buttons = document.querySelectorAll('.switch-btn');
     buttons.forEach(b => b.classList.remove('active'));
-    
+
     buttons.forEach(b => {
         if(type === 'press' && b.textContent.includes('High Press')) b.classList.add('active');
         if(type === 'block' && b.textContent.includes('Low Block')) b.classList.add('active');
@@ -298,10 +298,10 @@ function updateTimer() {
     const distance = launchDate - now;
 
     if (distance < 0) {
-        document.getElementById('days').innerText = "00";
-        document.getElementById('hours').innerText = "00";
-        document.getElementById('mins').innerText = "00";
-        document.getElementById('secs').innerText = "00";
+        document.getElementById('days').textContent = "00";
+        document.getElementById('hours').textContent = "00";
+        document.getElementById('mins').textContent = "00";
+        document.getElementById('secs').textContent = "00";
         return;
     }
 
@@ -310,10 +310,10 @@ function updateTimer() {
     const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
     const s = Math.floor((distance % (1000 * 60)) / 1000);
 
-    document.getElementById('days').innerText = d.toString().padStart(2, '0');
-    document.getElementById('hours').innerText = h.toString().padStart(2, '0');
-    document.getElementById('mins').innerText = m.toString().padStart(2, '0');
-    document.getElementById('secs').innerText = s.toString().padStart(2, '0');
+    document.getElementById('days').textContent = d.toString().padStart(2, '0');
+    document.getElementById('hours').textContent = h.toString().padStart(2, '0');
+    document.getElementById('mins').textContent = m.toString().padStart(2, '0');
+    document.getElementById('secs').textContent = s.toString().padStart(2, '0');
 }
 
 setInterval(updateTimer, 1000);
@@ -324,14 +324,14 @@ updateTimer();
 // ============================================================
 document.addEventListener("DOMContentLoaded", () => {
     const contactForm = document.getElementById('contactForm');
-    
+
     if(contactForm) {
         contactForm.addEventListener('submit', function(e) {
-            e.preventDefault(); 
-            
+            e.preventDefault();
+
             const form = e.target;
             const formData = new FormData(form);
-            
+
             const animContainer = document.getElementById('mission-control');
             const statusText = document.getElementById('status-text');
             const ball = document.getElementById('anim-ball');
@@ -371,7 +371,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Phase 3: Post-goal — update status + show success tick
             masterTL.call(() => {
-                statusText.innerText = 'INTEL RECEIVED';
+                statusText.textContent = 'INTEL RECEIVED';
                 statusText.style.color = '#fff';
             }, [], '+=0.1');
             masterTL.to(tickPop, { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(2)' }, '+=0');
@@ -381,7 +381,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Phase 4: Reset everything
             masterTL.call(() => {
                 // Reset state
-                statusText.innerText = 'UPLOADING TACTICS...';
+                statusText.textContent = 'UPLOADING TACTICS...';
                 statusText.style.color = '#00ff66';
                 tickPop.style.transform = 'translate(-50%, -50%) scale(0)';
                 tickPop.style.opacity = '0';
@@ -394,17 +394,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 bgNodes[2].style.left = '35%'; bgNodes[2].style.top = '75%';
                 bgNodes[3].style.left = '45%'; bgNodes[3].style.top = '10%';
                 bgNodes[4].style.left = '50%'; bgNodes[4].style.top = '85%';
-                
+
                 bkNodes[0].style.left = '60%'; bkNodes[0].style.top = '20%';
                 bkNodes[1].style.left = '65%'; bkNodes[1].style.top = '40%';
                 bkNodes[2].style.left = '65%'; bkNodes[2].style.top = '60%';
                 bkNodes[3].style.left = '60%'; bkNodes[3].style.top = '80%';
                 bkNodes[4].style.left = '45%'; bkNodes[4].style.top = '50%';
-                
+
                 ball.style.left = '22%';
                 ball.style.top = '52%';
                 ball.style.transition = 'none';
-                
+
                 form.reset();
                 form.style.display = 'block';
             });
