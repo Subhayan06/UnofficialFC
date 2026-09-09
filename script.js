@@ -100,12 +100,20 @@ magnetics.forEach(btn => {
 const tiltCards = document.querySelectorAll('.tilt-card');
 tiltCards.forEach(card => {
     let leaveTween;
+    let cachedRect = null;
+
+    card.addEventListener('mouseenter', () => {
+        cachedRect = card.getBoundingClientRect();
+    });
+
     card.addEventListener('mousemove', (e) => {
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
+        if (!cachedRect) {
+            cachedRect = card.getBoundingClientRect();
+        }
+        const x = e.clientX - cachedRect.left;
+        const y = e.clientY - cachedRect.top;
+        const centerX = cachedRect.width / 2;
+        const centerY = cachedRect.height / 2;
         const rotateX = ((y - centerY) / centerY) * -8;
         const rotateY = ((x - centerX) / centerX) * 8;
 
@@ -123,7 +131,9 @@ tiltCards.forEach(card => {
             transformOrigin: 'center center'
         });
     });
+
     card.addEventListener('mouseleave', () => {
+        cachedRect = null;
         leaveTween = gsap.to(card, {
             rotationX: 0,
             rotationY: 0,
