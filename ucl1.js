@@ -161,6 +161,7 @@
       this.droplets = [];
       this.maxDroplets = 25;
       this.intervalId = null;
+      this.dropletsCollection = this.container.getElementsByClassName('droplet');
       this.generate();
       this.loop();
     }
@@ -183,9 +184,9 @@
 
     generate() {
       // Remove droplets that are done (the CSS animation finishes them)
-      const existing = this.container.querySelectorAll('.droplet');
-      if (existing.length < this.maxDroplets) {
-        const count = Math.min(this.maxDroplets - existing.length, 3);
+      const existingCount = this.dropletsCollection.length;
+      if (existingCount < this.maxDroplets) {
+        const count = Math.min(this.maxDroplets - existingCount, 3);
         for (let i = 0; i < count; i++) {
           const d = this.createDroplet();
           this.container.appendChild(d);
