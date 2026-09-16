@@ -342,6 +342,11 @@ document.addEventListener("DOMContentLoaded", () => {
             
             const form = e.target;
             const formData = new FormData(form);
+            const accessKey = formData.get('access_key');
+            if (!accessKey || accessKey === 'YOUR_WEB3FORMS_ACCESS_KEY') {
+                alert('Please configure a valid Web3Forms access key before submitting.');
+                return;
+            }
             
             const animContainer = document.getElementById('mission-control');
             const statusText = document.getElementById('status-text');
