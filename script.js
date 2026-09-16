@@ -4,7 +4,7 @@
 // ============================================================
 
 // ---- Ensure GSAP is loaded before proceeding ----
-if (typeof gsap === 'undefined') {
+if (typeof window !== 'undefined' && typeof gsap === 'undefined') {
     console.error('GSAP is required but not loaded.');
     throw new Error('GSAP library is required but not loaded.');
 }
@@ -12,8 +12,8 @@ if (typeof gsap === 'undefined') {
 // ============================================================
 // 1. PREMIUM FLUID CURSOR — GSAP quickTo for zero jitter
 // ============================================================
-const cursorDot = document.querySelector('.cursor-dot');
-const cursorOutline = document.querySelector('.cursor-outline');
+const cursorDot = typeof document !== 'undefined' ? document.querySelector('.cursor-dot') : null;
+const cursorOutline = typeof document !== 'undefined' ? document.querySelector('.cursor-outline') : null;
 
 if (cursorDot && cursorOutline && gsap) {
     // GSAP quickTo creates ultra-efficient ticker-driven setters
@@ -61,7 +61,7 @@ if (cursorDot && cursorOutline && gsap) {
 // ============================================================
 // 2. MAGNETIC BUTTONS — GSAP premium inertia
 // ============================================================
-const magnetics = document.querySelectorAll('.magnetic, .magnetic-slight');
+const magnetics = typeof document !== 'undefined' ? document.querySelectorAll('.magnetic, .magnetic-slight') : [];
 magnetics.forEach(btn => {
     let leaveTimeline;
     btn.addEventListener('mousemove', (e) => {
@@ -97,7 +97,7 @@ magnetics.forEach(btn => {
 // ============================================================
 // 3. PREMIUM 3D TILT CARDS — GSAP fluid rotation + neon glow
 // ============================================================
-const tiltCards = document.querySelectorAll('.tilt-card');
+const tiltCards = typeof document !== 'undefined' ? document.querySelectorAll('.tilt-card') : [];
 tiltCards.forEach(card => {
     let leaveTween;
     let cachedRect = null;
@@ -149,7 +149,7 @@ tiltCards.forEach(card => {
 // ============================================================
 // 4. MOUSE GLOW — GSAP-driven radial gradient position
 // ============================================================
-const glowBg = document.querySelector('.glow-bg');
+const glowBg = typeof document !== 'undefined' ? document.querySelector('.glow-bg') : null;
 if (glowBg) {
     document.addEventListener('mousemove', (e) => {
         const x = (e.clientX / window.innerWidth) * 100;
@@ -183,16 +183,20 @@ function reveal() {
         }
     });
 }
-window.addEventListener('scroll', reveal);
-reveal();
+if (typeof window !== 'undefined') {
+    window.addEventListener('scroll', reveal);
+    reveal();
+}
 
 // ============================================================
 // 6. TACTICAL ENGINE — 2D Canvas (keeps rAF, GSAP not needed for canvas drawing)
 // ============================================================
-const canvas = document.getElementById('tactical-bg');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+const canvas = typeof document !== 'undefined' ? document.getElementById('tactical-bg') : null;
+const ctx = canvas ? canvas.getContext('2d') : null;
+if (canvas) {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
 
 let nodes = [];
 let currentTactic = 'press';
@@ -217,8 +221,10 @@ const formations = {
 class TacticalNode {
     constructor(index) {
         this.index = index;
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
+        const w = canvas ? canvas.width : 1000;
+        const h = canvas ? canvas.height : 1000;
+        this.x = Math.random() * w;
+        this.y = Math.random() * h;
         this.vx = 0; this.vy = 0;
         this.size = 7;
     }
@@ -227,8 +233,10 @@ class TacticalNode {
         if (this.index >= targetList.length) return;
         
         const target = targetList[this.index];
-        const targetX = target.x * canvas.width;
-        const targetY = target.y * canvas.height;
+        const w = canvas ? canvas.width : 1000;
+        const h = canvas ? canvas.height : 1000;
+        const targetX = target.x * w;
+        const targetY = target.y * h;
         this.isRed = target.r;
 
         let ax = (targetX - this.x) * 0.04;
@@ -240,6 +248,7 @@ class TacticalNode {
         this.y += this.vy;
     }
     draw() {
+        if (!ctx) return;
         ctx.shadowBlur = 15;
         ctx.shadowColor = this.isRed ? '#f43f5e' : '#3b82f6';
         ctx.fillStyle = this.isRed ? '#f43f5e' : '#3b82f6';
@@ -280,16 +289,23 @@ function animateTactics() {
     requestAnimationFrame(animateTactics);
 }
 
-initTactics();
-animateTactics();
+if (canvas && ctx) {
+    initTactics();
+    animateTactics();
+}
 
-window.addEventListener('resize', () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-});
+if (typeof window !== 'undefined') {
+    window.addEventListener('resize', () => {
+        if (canvas) {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+    });
+}
 
 function changeTactic(type) {
     currentTactic = type;
+    if (typeof document === 'undefined') return;
     const buttons = document.querySelectorAll('.switch-btn');
     buttons.forEach(b => b.classList.remove('active'));
     
@@ -305,14 +321,20 @@ function changeTactic(type) {
 const launchDate = new Date("September 18, 2026 00:00:00 UTC").getTime();
 
 function updateTimer() {
+    if (typeof document === 'undefined') return;
+    const daysEl = document.getElementById('days');
+    const hoursEl = document.getElementById('hours');
+    const minsEl = document.getElementById('mins');
+    const secsEl = document.getElementById('secs');
+    if (!daysEl || !hoursEl || !minsEl || !secsEl) return;
     const now = new Date().getTime();
     const distance = launchDate - now;
 
     if (distance < 0) {
-        document.getElementById('days').innerText = "00";
-        document.getElementById('hours').innerText = "00";
-        document.getElementById('mins').innerText = "00";
-        document.getElementById('secs').innerText = "00";
+        daysEl.innerText = "00";
+        hoursEl.innerText = "00";
+        minsEl.innerText = "00";
+        secsEl.innerText = "00";
         return;
     }
 
@@ -321,19 +343,22 @@ function updateTimer() {
     const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
     const s = Math.floor((distance % (1000 * 60)) / 1000);
 
-    document.getElementById('days').innerText = d.toString().padStart(2, '0');
-    document.getElementById('hours').innerText = h.toString().padStart(2, '0');
-    document.getElementById('mins').innerText = m.toString().padStart(2, '0');
-    document.getElementById('secs').innerText = s.toString().padStart(2, '0');
+    daysEl.innerText = d.toString().padStart(2, '0');
+    hoursEl.innerText = h.toString().padStart(2, '0');
+    minsEl.innerText = m.toString().padStart(2, '0');
+    secsEl.innerText = s.toString().padStart(2, '0');
 }
 
-setInterval(updateTimer, 1000);
-updateTimer();
+if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+    setInterval(updateTimer, 1000);
+    updateTimer();
+}
 
 // ============================================================
 // 8. FORM SUBMISSION ANIMATION — GSAP Timeline for tactical play
 // ============================================================
-document.addEventListener("DOMContentLoaded", () => {
+if (typeof document !== 'undefined') {
+    document.addEventListener("DOMContentLoaded", () => {
     const contactForm = document.getElementById('contactForm');
     
     if(contactForm) {
@@ -441,11 +466,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+}
+
 // ============================================================
 // 9. THREE.JS 3D MATRIX ENGINE — GSAP-Enhanced Parallax & Trails
 // ============================================================
 (function initMatrixEngine() {
-    const canvas = document.getElementById('homepage-matrix-canvas');
+    const canvas = typeof document !== 'undefined' ? document.getElementById('homepage-matrix-canvas') : null;
     if (!canvas) return;
 
     // ---- Scene Setup ----
@@ -713,3 +740,14 @@ document.addEventListener("DOMContentLoaded", () => {
     // ---- Start Engine ----
     animateMatrix(0);
 })();
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        changeTactic,
+        updateTimer,
+        TacticalNode,
+        formations,
+        getCurrentTactic: () => currentTactic,
+        setCurrentTactic: (val) => { currentTactic = val; }
+    };
+}
