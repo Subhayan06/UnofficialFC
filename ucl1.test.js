@@ -93,3 +93,84 @@ describe('TacticalPitch.tweenArray', () => {
     }
   });
 });
+
+describe('TacticalPitch.toCanvas', () => {
+  test('maps normalized origin (0, 0) to top-left padding coordinates [padX, padY]', () => {
+    const pitch = new TacticalPitch();
+    pitch.w = 800;
+    pitch.h = 600;
+
+    const padX = pitch.w * 0.06; // 48
+    const padY = pitch.h * 0.08; // 48
+    const [cx, cy] = pitch.toCanvas(0, 0);
+
+    assert.equal(cx, padX);
+    assert.equal(cy, padY);
+  });
+
+  test('maps normalized max bounds (100, 100) to bottom-right pitch boundary [w - padX, h - padY]', () => {
+    const pitch = new TacticalPitch();
+    pitch.w = 800;
+    pitch.h = 600;
+
+    const padX = pitch.w * 0.06;
+    const padY = pitch.h * 0.08;
+    const [cx, cy] = pitch.toCanvas(100, 100);
+
+    assert.equal(cx, pitch.w - padX);
+    assert.equal(cy, pitch.h - padY);
+  });
+
+  test('maps normalized center (50, 50) to exact canvas center [w / 2, h / 2]', () => {
+    const pitch = new TacticalPitch();
+    pitch.w = 800;
+    pitch.h = 600;
+
+    const [cx, cy] = pitch.toCanvas(50, 50);
+
+    assert.equal(cx, pitch.w / 2);
+    assert.equal(cy, pitch.h / 2);
+  });
+
+  test('transforms arbitrary floating-point coordinates accurately', () => {
+    const pitch = new TacticalPitch();
+    pitch.w = 800;
+    pitch.h = 600;
+
+    // scaleX = (800 - 96)/100 = 7.04; cx = 48 + 25.5 * 7.04 = 227.52
+    // scaleY = (600 - 96)/100 = 5.04; cy = 48 + 75.25 * 5.04 = 427.26
+    const [cx, cy] = pitch.toCanvas(25.5, 75.25);
+
+    assert.equal(Math.round(cx * 100) / 100, 227.52);
+    assert.equal(Math.round(cy * 100) / 100, 427.26);
+  });
+
+  test('handles out-of-bounds inputs (< 0 and > 100) correctly', () => {
+    const pitch = new TacticalPitch();
+    pitch.w = 800;
+    pitch.h = 600;
+
+    // x = -10 -> 48 + (-10) * 7.04 = -22.4
+    // y = 110 -> 48 + 110 * 5.04 = 602.4
+    const [cx, cy] = pitch.toCanvas(-10, 110);
+
+    assert.equal(Math.round(cx * 10) / 10, -22.4);
+    assert.equal(Math.round(cy * 10) / 10, 602.4);
+  });
+
+  test('calculates coordinates correctly across different canvas dimensions and aspect ratios', () => {
+    const pitch = new TacticalPitch();
+    pitch.w = 1200;
+    pitch.h = 400;
+
+    // padX = 1200 * 0.06 = 72; scaleX = (1200 - 144)/100 = 10.56
+    // padY = 400 * 0.08 = 32; scaleY = (400 - 64)/100 = 3.36
+    const origin = pitch.toCanvas(0, 0);
+    const center = pitch.toCanvas(50, 50);
+    const max = pitch.toCanvas(100, 100);
+
+    assert.deepEqual(origin, [72, 32]);
+    assert.deepEqual(center, [600, 200]);
+    assert.deepEqual(max, [1128, 368]);
+  });
+});
