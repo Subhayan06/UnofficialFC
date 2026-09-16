@@ -300,19 +300,23 @@ function changeTactic(type) {
 }
 
 // ============================================================
-// 7. REAL-TIME COUNTDOWN TIMER (unchanged, pure JS)
+// 7. REAL-TIME COUNTDOWN TIMER (cached DOM queries)
 // ============================================================
 const launchDate = new Date("September 18, 2026 00:00:00 UTC").getTime();
+const daysEl = document.getElementById('days');
+const hoursEl = document.getElementById('hours');
+const minsEl = document.getElementById('mins');
+const secsEl = document.getElementById('secs');
 
 function updateTimer() {
     const now = new Date().getTime();
     const distance = launchDate - now;
 
     if (distance < 0) {
-        document.getElementById('days').innerText = "00";
-        document.getElementById('hours').innerText = "00";
-        document.getElementById('mins').innerText = "00";
-        document.getElementById('secs').innerText = "00";
+        if (daysEl) daysEl.innerText = "00";
+        if (hoursEl) hoursEl.innerText = "00";
+        if (minsEl) minsEl.innerText = "00";
+        if (secsEl) secsEl.innerText = "00";
         return;
     }
 
@@ -321,10 +325,10 @@ function updateTimer() {
     const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
     const s = Math.floor((distance % (1000 * 60)) / 1000);
 
-    document.getElementById('days').innerText = d.toString().padStart(2, '0');
-    document.getElementById('hours').innerText = h.toString().padStart(2, '0');
-    document.getElementById('mins').innerText = m.toString().padStart(2, '0');
-    document.getElementById('secs').innerText = s.toString().padStart(2, '0');
+    if (daysEl) daysEl.innerText = d.toString().padStart(2, '0');
+    if (hoursEl) hoursEl.innerText = h.toString().padStart(2, '0');
+    if (minsEl) minsEl.innerText = m.toString().padStart(2, '0');
+    if (secsEl) secsEl.innerText = s.toString().padStart(2, '0');
 }
 
 setInterval(updateTimer, 1000);
