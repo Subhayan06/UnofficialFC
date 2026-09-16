@@ -93,3 +93,58 @@ describe('TacticalPitch.tweenArray', () => {
     }
   });
 });
+
+describe('TacticalPitch.setMoment', () => {
+  test('updates currentMoment and resets frame to 0 when given a valid moment index', () => {
+    const pitch = new TacticalPitch();
+    pitch.frame = 150;
+
+    pitch.setMoment(1);
+
+    assert.equal(pitch.currentMoment, 1);
+    assert.equal(pitch.frame, 0);
+
+    pitch.frame = 250;
+    pitch.setMoment(2);
+
+    assert.equal(pitch.currentMoment, 2);
+    assert.equal(pitch.frame, 0);
+  });
+
+  test('does not update currentMoment or frame when index is out of bounds', () => {
+    const pitch = new TacticalPitch();
+    pitch.setMoment(1);
+    pitch.frame = 75;
+
+    // Test negative index
+    pitch.setMoment(-1);
+    assert.equal(pitch.currentMoment, 1);
+    assert.equal(pitch.frame, 75);
+
+    // Test index equal to moments.length
+    pitch.setMoment(pitch.moments.length);
+    assert.equal(pitch.currentMoment, 1);
+    assert.equal(pitch.frame, 75);
+
+    // Test index greater than moments.length
+    pitch.setMoment(99);
+    assert.equal(pitch.currentMoment, 1);
+    assert.equal(pitch.frame, 75);
+  });
+
+  test('calls drawFrame with (idx, 0) for valid index and does not call drawFrame for invalid index', () => {
+    const pitch = new TacticalPitch();
+    const drawCalls = [];
+    pitch.drawFrame = (momentIdx, frameIdx) => {
+      drawCalls.push([momentIdx, frameIdx]);
+    };
+
+    pitch.setMoment(2);
+    assert.equal(drawCalls.length, 1);
+    assert.deepEqual(drawCalls[0], [2, 0]);
+
+    pitch.setMoment(-1);
+    pitch.setMoment(10);
+    assert.equal(drawCalls.length, 1);
+  });
+});

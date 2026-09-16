@@ -527,7 +527,7 @@
     }
 
     drawFrame(momentIdx, frameIdx) {
-      if (!this.moments[momentIdx]) return;
+      if (!this.ctx || !this.moments[momentIdx]) return;
       const moment = this.moments[momentIdx];
       const f = Math.min(frameIdx, this.totalFrames - 1);
 
