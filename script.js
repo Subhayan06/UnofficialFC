@@ -64,12 +64,20 @@ if (cursorDot && cursorOutline && gsap) {
 const magnetics = document.querySelectorAll('.magnetic, .magnetic-slight');
 magnetics.forEach(btn => {
     let leaveTimeline;
+    let cachedRect = null;
+
+    btn.addEventListener('mouseenter', () => {
+        cachedRect = btn.getBoundingClientRect();
+    });
+
     btn.addEventListener('mousemove', (e) => {
-        const rect = btn.getBoundingClientRect();
-        const h = rect.width / 2;
-        const w = rect.height / 2;
-        const x = e.clientX - rect.left - h;
-        const y = e.clientY - rect.top - w;
+        if (!cachedRect) {
+            cachedRect = btn.getBoundingClientRect();
+        }
+        const h = cachedRect.width / 2;
+        const w = cachedRect.height / 2;
+        const x = e.clientX - cachedRect.left - h;
+        const y = e.clientY - cachedRect.top - w;
         const pull = btn.classList.contains('magnetic-slight') ? 0.1 : 0.3;
 
         // Kill any leave tween in progress
@@ -84,6 +92,7 @@ magnetics.forEach(btn => {
         });
     });
     btn.addEventListener('mouseleave', () => {
+        cachedRect = null;
         leaveTimeline = gsap.to(btn, {
             x: 0,
             y: 0,
