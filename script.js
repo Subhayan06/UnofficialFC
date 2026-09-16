@@ -262,21 +262,61 @@ function animateTactics() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     nodes.forEach(node => { node.update(); node.draw(); });
     
+    const maxDist = canvas.width * 0.22;
+    const maxDistSq = maxDist * maxDist;
+
+    const redNodes = [];
+    const blueNodes = [];
     for(let i = 0; i < nodes.length; i++) {
-        for(let j = i + 1; j < nodes.length; j++) {
-            if(nodes[i].isRed === nodes[j].isRed) {
-                const dist = Math.hypot(nodes[i].x - nodes[j].x, nodes[i].y - nodes[j].y);
-                if(dist < canvas.width * 0.22) {
-                    ctx.beginPath();
-                    ctx.strokeStyle = nodes[i].isRed ? 'rgba(244, 63, 94, 0.35)' : 'rgba(59, 130, 246, 0.35)';
-                    ctx.lineWidth = 1.5;
-                    ctx.moveTo(nodes[i].x, nodes[i].y);
-                    ctx.lineTo(nodes[j].x, nodes[j].y);
-                    ctx.stroke();
+        if(nodes[i].isRed) {
+            redNodes.push(nodes[i]);
+        } else {
+            blueNodes.push(nodes[i]);
+        }
+    }
+
+    if(redNodes.length > 1) {
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(244, 63, 94, 0.35)';
+        ctx.lineWidth = 1.5;
+        let redConnected = false;
+        for(let i = 0; i < redNodes.length; i++) {
+            const nodeA = redNodes[i];
+            for(let j = i + 1; j < redNodes.length; j++) {
+                const nodeB = redNodes[j];
+                const dx = nodeA.x - nodeB.x;
+                const dy = nodeA.y - nodeB.y;
+                if(dx * dx + dy * dy < maxDistSq) {
+                    ctx.moveTo(nodeA.x, nodeA.y);
+                    ctx.lineTo(nodeB.x, nodeB.y);
+                    redConnected = true;
                 }
             }
         }
+        if(redConnected) ctx.stroke();
     }
+
+    if(blueNodes.length > 1) {
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(59, 130, 246, 0.35)';
+        ctx.lineWidth = 1.5;
+        let blueConnected = false;
+        for(let i = 0; i < blueNodes.length; i++) {
+            const nodeA = blueNodes[i];
+            for(let j = i + 1; j < blueNodes.length; j++) {
+                const nodeB = blueNodes[j];
+                const dx = nodeA.x - nodeB.x;
+                const dy = nodeA.y - nodeB.y;
+                if(dx * dx + dy * dy < maxDistSq) {
+                    ctx.moveTo(nodeA.x, nodeA.y);
+                    ctx.lineTo(nodeB.x, nodeB.y);
+                    blueConnected = true;
+                }
+            }
+        }
+        if(blueConnected) ctx.stroke();
+    }
+
     requestAnimationFrame(animateTactics);
 }
 
