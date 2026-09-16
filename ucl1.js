@@ -67,7 +67,7 @@
   class RainSystem {
     constructor(canvas, opts = {}) {
       this.canvas = canvas;
-      this.ctx = canvas.getContext('2d');
+      this.ctx = canvas ? canvas.getContext('2d') : null;
       this.count = opts.count || 120;
       this.speed = opts.speed || 4;
       this.length = opts.length || 12;
@@ -610,15 +610,16 @@
   class HeatmapCanvas {
     constructor(canvas) {
       this.canvas = canvas;
-      this.ctx = canvas.getContext('2d');
+      this.ctx = canvas ? canvas.getContext('2d') : null;
       this.intensity = 0;
       this.animId = null;
       this.resize();
     }
 
     resize() {
-      const rect = this.canvas.parentElement.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
+      if (!this.canvas) return;
+      const rect = this.canvas.parentElement ? this.canvas.parentElement.getBoundingClientRect() : { width: 800, height: 600 };
+      const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) || 1;
       this.canvas.width = rect.width * dpr;
       this.canvas.height = rect.height * dpr;
       this.ctx.scale(dpr, dpr);
@@ -1064,6 +1065,6 @@
 
   // Export for Node.js / testing environments
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { TacticalPitch };
+    module.exports = { TacticalPitch, HeatmapCanvas };
   }
 })();

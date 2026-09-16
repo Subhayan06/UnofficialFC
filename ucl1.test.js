@@ -1,6 +1,6 @@
 const { test, describe } = require('node:test');
 const assert = require('node:assert/strict');
-const { TacticalPitch } = require('./ucl1.js');
+const { TacticalPitch, HeatmapCanvas } = require('./ucl1.js');
 
 describe('TacticalPitch.tweenArray', () => {
   test('returns points array sliced directly if points length >= totalFrames', () => {
@@ -90,6 +90,137 @@ describe('TacticalPitch.tweenArray', () => {
     assert.equal(result.length, pitch.totalFrames);
     for (let i = 0; i < pitch.totalFrames; i++) {
       assert.deepEqual(result[i], [30, 40]);
+    }
+  });
+});
+
+describe('HeatmapCanvas', () => {
+  function createMockCanvas(width = 800, height = 600) {
+    const calls = [];
+    const ctx = {
+      scale: (...args) => calls.push(['scale', ...args]),
+      clearRect: (...args) => calls.push(['clearRect', ...args]),
+      fillRect: (...args) => calls.push(['fillRect', ...args]),
+      strokeRect: (...args) => calls.push(['strokeRect', ...args]),
+      beginPath: (...args) => calls.push(['beginPath', ...args]),
+      moveTo: (...args) => calls.push(['moveTo', ...args]),
+      lineTo: (...args) => calls.push(['lineTo', ...args]),
+      stroke: (...args) => calls.push(['stroke', ...args]),
+      fill: (...args) => calls.push(['fill', ...args]),
+      ellipse: (...args) => calls.push(['ellipse', ...args]),
+      fillText: (...args) => calls.push(['fillText', ...args]),
+      createRadialGradient: (...args) => {
+        calls.push(['createRadialGradient', ...args]);
+        return { addColorStop: (...stopArgs) => calls.push(['addColorStop', ...stopArgs]) };
+      },
+      createLinearGradient: (...args) => {
+        calls.push(['createLinearGradient', ...args]);
+        return { addColorStop: (...stopArgs) => calls.push(['addColorStop', ...stopArgs]) };
+      },
+    };
+
+    const canvas = {
+      width: 0,
+      height: 0,
+      parentElement: {
+        getBoundingClientRect: () => ({ width, height }),
+      },
+      getContext: (type) => (type === '2d' ? ctx : null),
+    };
+
+    return { canvas, ctx, calls };
+  }
+
+  test('initializes correctly and sets dimensions on resize', () => {
+    const { canvas } = createMockCanvas(1000, 500);
+    const heatmap = new HeatmapCanvas(canvas);
+
+    assert.equal(heatmap.w, 1000);
+    assert.equal(heatmap.h, 500);
+    assert.equal(canvas.width, 1000);
+    assert.equal(canvas.height, 500);
+    assert.equal(heatmap.intensity, 0);
+    assert.equal(heatmap.animId, null);
+  });
+
+  test('handles null parentElement during resize', () => {
+    const { canvas } = createMockCanvas();
+    canvas.parentElement = null;
+    const heatmap = new HeatmapCanvas(canvas);
+
+    assert.equal(heatmap.w, 800);
+    assert.equal(heatmap.h, 600);
+  });
+
+  test('handles null canvas safely in constructor', () => {
+    const heatmap = new HeatmapCanvas(null);
+    assert.equal(heatmap.canvas, null);
+    assert.equal(heatmap.ctx, null);
+  });
+
+  test('setIntensity updates intensity value', () => {
+    const { canvas } = createMockCanvas();
+    const heatmap = new HeatmapCanvas(canvas);
+
+    heatmap.setIntensity(0.85);
+    assert.equal(heatmap.intensity, 0.85);
+  });
+
+  test('draw executes required context rendering methods', () => {
+    const { canvas, calls } = createMockCanvas(800, 600);
+    const heatmap = new HeatmapCanvas(canvas);
+
+    calls.length = 0; // Clear initialization calls
+    heatmap.draw(0.7);
+
+    const methodNames = calls.map((c) => c[0]);
+    assert.ok(methodNames.includes('clearRect'));
+    assert.ok(methodNames.includes('createRadialGradient'));
+    assert.ok(methodNames.includes('fillRect'));
+    assert.ok(methodNames.includes('strokeRect'));
+    assert.ok(methodNames.includes('ellipse'));
+    assert.ok(methodNames.includes('fillText'));
+    assert.ok(methodNames.includes('createLinearGradient'));
+  });
+
+  test('start, animate, and destroy manage requestAnimationFrame lifecycle', () => {
+    const { canvas } = createMockCanvas(800, 600);
+    const heatmap = new HeatmapCanvas(canvas);
+
+    let rafCallback = null;
+    let nextId = 1;
+    const origRaf = globalThis.requestAnimationFrame;
+    const origCaf = globalThis.cancelAnimationFrame;
+
+    globalThis.requestAnimationFrame = (cb) => {
+      rafCallback = cb;
+      return nextId++;
+    };
+    globalThis.cancelAnimationFrame = (id) => {
+      if (heatmap.animId === id) {
+        heatmap.animId = null;
+      }
+    };
+
+    try {
+      heatmap.start();
+      assert.equal(heatmap.animId, 1);
+      assert.notEqual(rafCallback, null);
+
+      // Execute animation frame callback
+      const initialIntensity = heatmap.intensity;
+      const cb = rafCallback;
+      rafCallback = null;
+      cb();
+
+      assert.ok(heatmap.intensity > initialIntensity); // Intensity moved towards 0.7
+      assert.equal(heatmap.animId, 2);
+
+      heatmap.destroy();
+      assert.equal(heatmap.animId, null);
+    } finally {
+      globalThis.requestAnimationFrame = origRaf;
+      globalThis.cancelAnimationFrame = origCaf;
     }
   });
 });
