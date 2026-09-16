@@ -165,26 +165,41 @@ if (glowBg) {
 }
 
 // ============================================================
-// 5. SCROLL REVEAL — GSAP-powered (kept simple)
+// 5. SCROLL REVEAL — IntersectionObserver + GSAP
 // ============================================================
-function reveal() {
-    const reveals = document.querySelectorAll('.reveal');
-    reveals.forEach(el => {
-        const windowHeight = window.innerHeight;
-        const elementTop = el.getBoundingClientRect().top;
-        if (elementTop < windowHeight - 100) {
-            gsap.to(el, {
-                opacity: 1,
-                y: 0,
-                duration: 0.8,
-                ease: 'power3.out',
-                overwrite: 'auto'
-            });
-        }
+if ('IntersectionObserver' in window) {
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                gsap.to(entry.target, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: 'power3.out',
+                    overwrite: 'auto'
+                });
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        rootMargin: '0px 0px -100px 0px'
+    });
+
+    document.querySelectorAll('.reveal').forEach(el => {
+        revealObserver.observe(el);
+    });
+} else {
+    // Fallback for older browsers
+    document.querySelectorAll('.reveal').forEach(el => {
+        gsap.to(el, {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power3.out',
+            overwrite: 'auto'
+        });
     });
 }
-window.addEventListener('scroll', reveal);
-reveal();
 
 // ============================================================
 // 6. TACTICAL ENGINE — 2D Canvas (keeps rAF, GSAP not needed for canvas drawing)
