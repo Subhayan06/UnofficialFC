@@ -616,8 +616,8 @@ if (typeof document !== 'undefined') {
             const dx = nodePositions[i * 3] - nodePositions[j * 3];
             const dy = nodePositions[i * 3 + 1] - nodePositions[j * 3 + 1];
             const dz = nodePositions[i * 3 + 2] - nodePositions[j * 3 + 2];
-            const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-            if (dist < 2.2 && Math.random() > 0.6) {
+            const distSq = dx * dx + dy * dy + dz * dz;
+            if (distSq < 4.84 && Math.random() > 0.6) {
                 linePairs.push(i, j);
             }
         }
