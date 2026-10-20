@@ -1,6 +1,6 @@
 const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert/strict');
-const { changeTactic, updateTimer, TacticalNode, formations, getCurrentTactic, setCurrentTactic } = require('./script.js');
+const { changeTactic, updateTimer, TacticalNode, formations, getCurrentTactic, setCurrentTactic, drawNodeConnections } = require('./script.js');
 
 function createMockElement(textContent, initialClasses = []) {
   const classSet = new Set(initialClasses);
@@ -153,6 +153,63 @@ describe('script.js Unit Tests', () => {
 
       assert.equal(node.x, initialX);
       assert.equal(node.y, initialY);
+    });
+  });
+
+  describe('drawNodeConnections', () => {
+    function createMockContext() {
+      const calls = [];
+      return {
+        calls,
+        beginPath: () => calls.push('beginPath'),
+        stroke: () => calls.push('stroke'),
+        moveTo: (x, y) => calls.push(['moveTo', x, y]),
+        lineTo: (x, y) => calls.push(['lineTo', x, y]),
+        strokeStyle: '',
+        lineWidth: 0
+      };
+    }
+
+    test('returns false and performs no drawing if context is missing or nodeGroup has <= 1 nodes', () => {
+      const mockCtx = createMockContext();
+      assert.equal(drawNodeConnections([], '#fff', 10000, mockCtx), false);
+      assert.equal(drawNodeConnections([{ x: 10, y: 10 }], '#fff', 10000, mockCtx), false);
+      assert.equal(drawNodeConnections([{ x: 10, y: 10 }, { x: 20, y: 20 }], '#fff', 10000, null), false);
+      assert.equal(mockCtx.calls.length, 0);
+    });
+
+    test('does not stroke if nodes exceed maxDistSq threshold', () => {
+      const mockCtx = createMockContext();
+      const nodes = [
+        { x: 0, y: 0 },
+        { x: 100, y: 100 }
+      ];
+      const maxDistSq = 10000;
+
+      const connected = drawNodeConnections(nodes, 'rgba(255,0,0,0.5)', maxDistSq, mockCtx);
+
+      assert.equal(connected, false);
+      assert.equal(mockCtx.calls.includes('stroke'), false);
+    });
+
+    test('draws lines and strokes when nodes are within maxDistSq threshold', () => {
+      const mockCtx = createMockContext();
+      const nodes = [
+        { x: 0, y: 0 },
+        { x: 10, y: 10 },
+        { x: 500, y: 500 }
+      ];
+      const maxDistSq = 1000;
+
+      const connected = drawNodeConnections(nodes, 'rgba(244, 63, 94, 0.35)', maxDistSq, mockCtx);
+
+      assert.equal(connected, true);
+      assert.equal(mockCtx.strokeStyle, 'rgba(244, 63, 94, 0.35)');
+      assert.equal(mockCtx.lineWidth, 1.5);
+      assert.ok(mockCtx.calls.includes('beginPath'));
+      assert.ok(mockCtx.calls.includes('stroke'));
+      assert.deepEqual(mockCtx.calls.find(c => Array.isArray(c) && c[0] === 'moveTo'), ['moveTo', 0, 0]);
+      assert.deepEqual(mockCtx.calls.find(c => Array.isArray(c) && c[0] === 'lineTo'), ['lineTo', 10, 10]);
     });
   });
 
