@@ -368,6 +368,7 @@ function changeTactic(type) {
 // 7. REAL-TIME COUNTDOWN TIMER (unchanged, pure JS)
 // ============================================================
 const launchDate = new Date("October 3, 2026 00:00:00 UTC").getTime();
+let timerInterval = null;
 
 function updateTimer() {
     if (typeof document === 'undefined') return;
@@ -384,6 +385,10 @@ function updateTimer() {
         hoursEl.innerText = "00";
         minsEl.innerText = "00";
         secsEl.innerText = "00";
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
         return;
     }
 
@@ -399,7 +404,7 @@ function updateTimer() {
 }
 
 if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-    setInterval(updateTimer, 1000);
+    timerInterval = setInterval(updateTimer, 1000);
     updateTimer();
 }
 
@@ -802,6 +807,8 @@ if (typeof module !== 'undefined' && module.exports) {
         TacticalNode,
         formations,
         getCurrentTactic: () => currentTactic,
-        setCurrentTactic: (val) => { currentTactic = val; }
+        setCurrentTactic: (val) => { currentTactic = val; },
+        getTimerInterval: () => timerInterval,
+        setTimerInterval: (val) => { timerInterval = val; }
     };
 }

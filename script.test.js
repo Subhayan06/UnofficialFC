@@ -1,6 +1,6 @@
 const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert/strict');
-const { changeTactic, updateTimer, TacticalNode, formations, getCurrentTactic, setCurrentTactic } = require('./script.js');
+const { changeTactic, updateTimer, TacticalNode, formations, getCurrentTactic, setCurrentTactic, getTimerInterval, setTimerInterval } = require('./script.js');
 
 function createMockElement(textContent, initialClasses = []) {
   const classSet = new Set(initialClasses);
@@ -104,6 +104,37 @@ describe('script.js Unit Tests', () => {
       };
       // Should not throw
       assert.doesNotThrow(() => updateTimer());
+    });
+
+    test('clears interval and sets timerInterval to null when countdown timer expires', () => {
+      let intervalCleared = false;
+      const fakeIntervalId = setInterval(() => {}, 10000);
+      setTimerInterval(fakeIntervalId);
+
+      const originalDate = global.Date;
+      // Mock Date to return a time past launchDate (October 3, 2026 UTC)
+      const pastLaunchDate = new Date('October 4, 2026 00:00:00 UTC').getTime();
+      global.Date = class extends Date {
+        constructor(...args) {
+          if (args.length) return new originalDate(...args);
+          return new originalDate(pastLaunchDate);
+        }
+        static now() {
+          return pastLaunchDate;
+        }
+      };
+
+      try {
+        updateTimer();
+        assert.equal(getTimerInterval(), null);
+        assert.equal(mockElements.days.innerText, '00');
+        assert.equal(mockElements.hours.innerText, '00');
+        assert.equal(mockElements.mins.innerText, '00');
+        assert.equal(mockElements.secs.innerText, '00');
+      } finally {
+        global.Date = originalDate;
+        clearInterval(fakeIntervalId);
+      }
     });
   });
 
