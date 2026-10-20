@@ -37,9 +37,6 @@
   // ============================================
   const preloader = typeof document !== 'undefined' ? document.getElementById('preloader') : null;
   const preloaderBar = typeof document !== 'undefined' ? document.getElementById('preloader-bar') : null;
-  const heroLeft = typeof document !== 'undefined' ? document.getElementById('hero-left') : null;
-  const heroRight = typeof document !== 'undefined' ? document.getElementById('hero-right') : null;
-  const heroVS = typeof document !== 'undefined' ? document.getElementById('hero-vs') : null;
   const stickyNav = typeof document !== 'undefined' ? document.getElementById('sticky-nav') : null;
   const rainCanvasHero = typeof document !== 'undefined' ? document.getElementById('rain-canvas-hero') : null;
   const rainCanvasGlobal = typeof document !== 'undefined' ? document.getElementById('rain-canvas-global') : null;
