@@ -2,6 +2,70 @@ const { test, describe } = require('node:test');
 const assert = require('node:assert/strict');
 const { TacticalPitch, HeatmapCanvas } = require('./ucl1.js');
 
+describe('TacticalPitch.drawPitch', () => {
+  function createMockCanvas(width = 800, height = 600) {
+    const calls = [];
+    const ctx = {
+      scale: (...args) => calls.push(['scale', ...args]),
+      clearRect: (...args) => calls.push(['clearRect', ...args]),
+      fillRect: (...args) => calls.push(['fillRect', ...args]),
+      strokeRect: (...args) => calls.push(['strokeRect', ...args]),
+      beginPath: (...args) => calls.push(['beginPath', ...args]),
+      moveTo: (...args) => calls.push(['moveTo', ...args]),
+      lineTo: (...args) => calls.push(['lineTo', ...args]),
+      stroke: (...args) => calls.push(['stroke', ...args]),
+      arc: (...args) => calls.push(['arc', ...args]),
+      createRadialGradient: (...args) => {
+        calls.push(['createRadialGradient', ...args]);
+        return { addColorStop: (...stopArgs) => calls.push(['addColorStop', ...stopArgs]) };
+      },
+    };
+
+    const canvas = {
+      width: 0,
+      height: 0,
+      parentElement: {
+        getBoundingClientRect: () => ({ width, height }),
+      },
+      getContext: (type) => (type === '2d' ? ctx : null),
+    };
+
+    return { canvas, ctx, calls };
+  }
+
+  test('draws pitch elements including grid lines accurately', () => {
+    const { canvas, calls } = createMockCanvas(800, 600);
+    const pitch = new TacticalPitch(canvas);
+
+    calls.length = 0; // Reset calls from constructor/resize
+    pitch.drawPitch();
+
+    // Verify background fill and pitch outline
+    const methodNames = calls.map((c) => c[0]);
+    assert.ok(methodNames.includes('createRadialGradient'));
+    assert.ok(methodNames.includes('fillRect'));
+    assert.ok(methodNames.includes('strokeRect'));
+
+    // Verify grid line drawing calls (9 vertical and 9 horizontal grid lines = 18 move/line/stroke pairs for grid)
+    const moveCalls = calls.filter((c) => c[0] === 'moveTo');
+    const lineCalls = calls.filter((c) => c[0] === 'lineTo');
+    const strokeCalls = calls.filter((c) => c[0] === 'stroke');
+
+    // 1 center line + 18 grid lines = 19 moveTo & lineTo calls
+    assert.equal(moveCalls.length, 19);
+    assert.equal(lineCalls.length, 19);
+
+    // Verify grid spacing calculations (pw = 800 - 96 = 704 -> pw/10 = 70.4; ph = 600 - 96 = 504 -> ph/10 = 50.4)
+    // First vertical grid line (i=1): gx = 48 + 70.4 = 118.4
+    const firstVertMove = moveCalls[1]; // moveCalls[0] is center line
+    assert.equal(Math.round(firstVertMove[1]), 118); // gx
+
+    // First horizontal grid line (i=1): gy = 48 + 50.4 = 98.4
+    const firstHorizMove = moveCalls[2];
+    assert.equal(Math.round(firstHorizMove[2]), 98); // gy
+  });
+});
+
 describe('TacticalPitch.tweenArray', () => {
   test('returns points array sliced directly if points length >= totalFrames', () => {
     const pitch = new TacticalPitch();

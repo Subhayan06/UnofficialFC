@@ -459,17 +459,19 @@
       // Grid lines (holographic effect)
       ctx.strokeStyle = 'rgba(0, 255, 136, 0.04)';
       ctx.lineWidth = 0.5;
-      const gridSpacing = pw / 10;
+      const gridSpacingX = pw / 10;
+      const gridSpacingY = ph / 10;
       for (let i = 1; i < 10; i++) {
-        const gx = padX + i * gridSpacing;
+        const gx = padX + i * gridSpacingX;
+        const gy = padY + i * gridSpacingY;
+
+        // Vertical grid line
         ctx.beginPath();
         ctx.moveTo(gx, padY);
         ctx.lineTo(gx, padY + ph);
         ctx.stroke();
-      }
-      const gridSpacingY = ph / 10;
-      for (let i = 1; i < 10; i++) {
-        const gy = padY + i * gridSpacingY;
+
+        // Horizontal grid line
         ctx.beginPath();
         ctx.moveTo(padX, gy);
         ctx.lineTo(padX + pw, gy);
