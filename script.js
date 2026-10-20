@@ -276,6 +276,29 @@ function initTactics() {
     }
 }
 
+function drawNodeConnections(nodeGroup, strokeStyle, maxDistSq, context = ctx) {
+    if (!context || nodeGroup.length <= 1) return false;
+    context.beginPath();
+    context.strokeStyle = strokeStyle;
+    context.lineWidth = 1.5;
+    let connected = false;
+    for (let i = 0; i < nodeGroup.length; i++) {
+        const nodeA = nodeGroup[i];
+        for (let j = i + 1; j < nodeGroup.length; j++) {
+            const nodeB = nodeGroup[j];
+            const dx = nodeA.x - nodeB.x;
+            const dy = nodeA.y - nodeB.y;
+            if (dx * dx + dy * dy < maxDistSq) {
+                context.moveTo(nodeA.x, nodeA.y);
+                context.lineTo(nodeB.x, nodeB.y);
+                connected = true;
+            }
+        }
+    }
+    if (connected) context.stroke();
+    return connected;
+}
+
 function animateTactics() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     nodes.forEach(node => { node.update(); node.draw(); });
@@ -293,47 +316,8 @@ function animateTactics() {
         }
     }
 
-    if(redNodes.length > 1) {
-        ctx.beginPath();
-        ctx.strokeStyle = 'rgba(244, 63, 94, 0.35)';
-        ctx.lineWidth = 1.5;
-        let redConnected = false;
-        for(let i = 0; i < redNodes.length; i++) {
-            const nodeA = redNodes[i];
-            for(let j = i + 1; j < redNodes.length; j++) {
-                const nodeB = redNodes[j];
-                const dx = nodeA.x - nodeB.x;
-                const dy = nodeA.y - nodeB.y;
-                if(dx * dx + dy * dy < maxDistSq) {
-                    ctx.moveTo(nodeA.x, nodeA.y);
-                    ctx.lineTo(nodeB.x, nodeB.y);
-                    redConnected = true;
-                }
-            }
-        }
-        if(redConnected) ctx.stroke();
-    }
-
-    if(blueNodes.length > 1) {
-        ctx.beginPath();
-        ctx.strokeStyle = 'rgba(59, 130, 246, 0.35)';
-        ctx.lineWidth = 1.5;
-        let blueConnected = false;
-        for(let i = 0; i < blueNodes.length; i++) {
-            const nodeA = blueNodes[i];
-            for(let j = i + 1; j < blueNodes.length; j++) {
-                const nodeB = blueNodes[j];
-                const dx = nodeA.x - nodeB.x;
-                const dy = nodeA.y - nodeB.y;
-                if(dx * dx + dy * dy < maxDistSq) {
-                    ctx.moveTo(nodeA.x, nodeA.y);
-                    ctx.lineTo(nodeB.x, nodeB.y);
-                    blueConnected = true;
-                }
-            }
-        }
-        if(blueConnected) ctx.stroke();
-    }
+    drawNodeConnections(redNodes, 'rgba(244, 63, 94, 0.35)', maxDistSq);
+    drawNodeConnections(blueNodes, 'rgba(59, 130, 246, 0.35)', maxDistSq);
 
     requestAnimationFrame(animateTactics);
 }
@@ -802,6 +786,7 @@ if (typeof module !== 'undefined' && module.exports) {
         TacticalNode,
         formations,
         getCurrentTactic: () => currentTactic,
-        setCurrentTactic: (val) => { currentTactic = val; }
+        setCurrentTactic: (val) => { currentTactic = val; },
+        drawNodeConnections
     };
 }
