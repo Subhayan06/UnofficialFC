@@ -1,6 +1,6 @@
-const { test, describe } = require('node:test');
+const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert/strict');
-const { TacticalPitch, HeatmapCanvas } = require('./ucl1.js');
+const { TacticalPitch, HeatmapCanvas, StateMachine } = require('./ucl1.js');
 
 describe('TacticalPitch.tweenArray', () => {
   test('returns points array sliced directly if points length >= totalFrames', () => {
@@ -90,6 +90,114 @@ describe('TacticalPitch.tweenArray', () => {
     assert.equal(result.length, pitch.totalFrames);
     for (let i = 0; i < pitch.totalFrames; i++) {
       assert.deepEqual(result[i], [30, 40]);
+    }
+  });
+});
+
+describe('StateMachine', () => {
+  let origDocument;
+  let origCustomEvent;
+
+  beforeEach(() => {
+    // Reset state machine to initial state before each test
+    StateMachine.current = 'idle';
+    origDocument = global.document;
+    origCustomEvent = global.CustomEvent;
+  });
+
+  afterEach(() => {
+    global.document = origDocument;
+    global.CustomEvent = origCustomEvent;
+  });
+
+  test('initializes with default state "idle" and valid transition map', () => {
+    assert.equal(StateMachine.current, 'idle');
+    assert.deepEqual(StateMachine.transitions, {
+      idle: ['playing'],
+      playing: ['finished'],
+      finished: ['idle'],
+    });
+  });
+
+  test('transitions through valid lifecycle states (idle -> playing -> finished -> idle)', () => {
+    // Mock document.dispatchEvent & CustomEvent to prevent error in Node environment
+    global.document = { dispatchEvent: () => {} };
+    global.CustomEvent = class MockCustomEvent {
+      constructor(type, eventInitDict) {
+        this.type = type;
+        this.detail = eventInitDict ? eventInitDict.detail : null;
+      }
+    };
+
+    assert.equal(StateMachine.current, 'idle');
+
+    StateMachine.enter('playing');
+    assert.equal(StateMachine.current, 'playing');
+
+    StateMachine.enter('finished');
+    assert.equal(StateMachine.current, 'finished');
+
+    StateMachine.enter('idle');
+    assert.equal(StateMachine.current, 'idle');
+  });
+
+  test('ignores invalid state transition attempts and keeps current state unchanged', () => {
+    global.document = { dispatchEvent: () => {} };
+    global.CustomEvent = class MockCustomEvent {};
+
+    assert.equal(StateMachine.current, 'idle');
+
+    // Attempt direct transition from idle -> finished (invalid)
+    StateMachine.enter('finished');
+    assert.equal(StateMachine.current, 'idle');
+
+    // Attempt invalid/unknown state
+    StateMachine.enter('unknown_state');
+    assert.equal(StateMachine.current, 'idle');
+
+    // Transition to playing (valid)
+    StateMachine.enter('playing');
+    assert.equal(StateMachine.current, 'playing');
+
+    // Attempt transition from playing -> idle (invalid)
+    StateMachine.enter('idle');
+    assert.equal(StateMachine.current, 'playing');
+  });
+
+  test('invokes onChange and dispatches CustomEvent on document on valid transition', () => {
+    const dispatchedEvents = [];
+    global.document = {
+      dispatchEvent: (evt) => dispatchedEvents.push(evt),
+    };
+    global.CustomEvent = class MockCustomEvent {
+      constructor(type, eventInitDict) {
+        this.type = type;
+        this.detail = eventInitDict ? eventInitDict.detail : null;
+      }
+    };
+
+    const onChangeCalls = [];
+    const origOnChange = StateMachine.onChange;
+    StateMachine.onChange = function (state) {
+      onChangeCalls.push(state);
+      origOnChange.call(this, state);
+    };
+
+    try {
+      StateMachine.enter('playing');
+
+      assert.equal(StateMachine.current, 'playing');
+      assert.deepEqual(onChangeCalls, ['playing']);
+      assert.equal(dispatchedEvents.length, 1);
+      assert.equal(dispatchedEvents[0].type, 'stateChange');
+      assert.deepEqual(dispatchedEvents[0].detail, { state: 'playing' });
+
+      // Invalid transition should not trigger onChange or dispatchEvent
+      StateMachine.enter('idle');
+      assert.equal(onChangeCalls.length, 1);
+      assert.equal(dispatchedEvents.length, 1);
+    } finally {
+      StateMachine.onChange = origOnChange;
     }
   });
 });
