@@ -222,6 +222,8 @@
   // ============================================
   // TACTICAL PITCH — 22 NODES + BALL + 3 MOMENTS
   // ============================================
+  const BARCA_PLAYERS = new Set(['ronaldinho','etoo','deco','iniesta','larsson','xavi','belletti','vanBronckhorst','edmilson','puyol','marquez','oleguer','valdes']);
+
   class TacticalPitch {
     constructor(canvas) {
       this.canvas = canvas;
@@ -539,7 +541,7 @@
         if (!player.path || !player.path[f]) continue;
         const [px, py] = player.path[f];
         const [cx, cy] = this.toCanvas(px, py);
-        const isBarca = ['ronaldinho','etoo','deco','iniesta','larsson','xavi','belletti','vanBronckhorst','edmilson','puyol','marquez','oleguer','valdes'].includes(key);
+        const isBarca = BARCA_PLAYERS.has(key);
         const fillColor = isBarca ? '#1a1a6b' : '#f5c842';
         const strokeColor = isBarca ? '#a50034' : '#333333';
         const radius = (isBarca ? 10 : 10) * (this.w / 800);
