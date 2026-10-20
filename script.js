@@ -496,18 +496,35 @@ if (typeof document !== 'undefined') {
                 animContainer.style.display = 'none';
                 animContainer.style.opacity = '1';
 
-                // Reset nodes instantly
-                bgNodes[0].style.left = '20%'; bgNodes[0].style.top = '50%';
-                bgNodes[1].style.left = '35%'; bgNodes[1].style.top = '25%';
-                bgNodes[2].style.left = '35%'; bgNodes[2].style.top = '75%';
-                bgNodes[3].style.left = '45%'; bgNodes[3].style.top = '10%';
-                bgNodes[4].style.left = '50%'; bgNodes[4].style.top = '85%';
-                
-                bkNodes[0].style.left = '60%'; bkNodes[0].style.top = '20%';
-                bkNodes[1].style.left = '65%'; bkNodes[1].style.top = '40%';
-                bkNodes[2].style.left = '65%'; bkNodes[2].style.top = '60%';
-                bkNodes[3].style.left = '60%'; bkNodes[3].style.top = '80%';
-                bkNodes[4].style.left = '45%'; bkNodes[4].style.top = '50%';
+                // Initial positions for reset
+                const bgInitialPositions = [
+                    { left: '20%', top: '50%' },
+                    { left: '35%', top: '25%' },
+                    { left: '35%', top: '75%' },
+                    { left: '45%', top: '10%' },
+                    { left: '50%', top: '85%' }
+                ];
+                const bkInitialPositions = [
+                    { left: '60%', top: '20%' },
+                    { left: '65%', top: '40%' },
+                    { left: '65%', top: '60%' },
+                    { left: '60%', top: '80%' },
+                    { left: '45%', top: '50%' }
+                ];
+
+                // Reset nodes instantly via helper loop
+                bgNodes.forEach((node, i) => {
+                    if (node && bgInitialPositions[i]) {
+                        node.style.left = bgInitialPositions[i].left;
+                        node.style.top = bgInitialPositions[i].top;
+                    }
+                });
+                bkNodes.forEach((node, i) => {
+                    if (node && bkInitialPositions[i]) {
+                        node.style.left = bkInitialPositions[i].left;
+                        node.style.top = bkInitialPositions[i].top;
+                    }
+                });
                 
                 ball.style.left = '22%';
                 ball.style.top = '52%';
