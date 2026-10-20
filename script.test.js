@@ -1,6 +1,6 @@
 const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert/strict');
-const { changeTactic, updateTimer, TacticalNode, formations, getCurrentTactic, setCurrentTactic } = require('./script.js');
+const { changeTactic, updateTimer, TacticalNode, formations, getCurrentTactic, setCurrentTactic, initMatrixEngine } = require('./script.js');
 
 function createMockElement(textContent, initialClasses = []) {
   const classSet = new Set(initialClasses);
@@ -153,6 +153,114 @@ describe('script.js Unit Tests', () => {
 
       assert.equal(node.x, initialX);
       assert.equal(node.y, initialY);
+    });
+  });
+
+
+  describe('initMatrixEngine', () => {
+    let originalDocument;
+    let originalWindow;
+    let originalThree;
+    let originalRequestAnimationFrame;
+    let originalCancelAnimationFrame;
+
+    beforeEach(() => {
+      originalDocument = global.document;
+      originalWindow = global.window;
+      originalThree = global.THREE;
+      originalRequestAnimationFrame = global.requestAnimationFrame;
+      originalCancelAnimationFrame = global.cancelAnimationFrame;
+    });
+
+    afterEach(() => {
+      global.document = originalDocument;
+      global.window = originalWindow;
+      global.THREE = originalThree;
+      global.requestAnimationFrame = originalRequestAnimationFrame;
+      global.cancelAnimationFrame = originalCancelAnimationFrame;
+    });
+
+    test('returns null safely when canvas is missing', () => {
+      global.document = {
+        getElementById: () => null
+      };
+
+      const result = initMatrixEngine();
+      assert.equal(result, null);
+    });
+
+    test('initializes matrix engine, requests animation frame, and cleans up when invoked', () => {
+      let rAFCount = 0;
+      let requestedFrameId = null;
+      let canceledFrameId = null;
+
+      global.requestAnimationFrame = (fn) => {
+        rAFCount++;
+        requestedFrameId = 42;
+        return requestedFrameId;
+      };
+
+      global.cancelAnimationFrame = (id) => {
+        canceledFrameId = id;
+      };
+
+      const mockCanvas = {
+        getContext: () => ({})
+      };
+
+      global.document = {
+        getElementById: (id) => (id === 'homepage-matrix-canvas' ? mockCanvas : null),
+        addEventListener: () => {}
+      };
+
+      global.window = {
+        innerWidth: 1024,
+        innerHeight: 768,
+        devicePixelRatio: 1,
+        addEventListener: () => {},
+        removeEventListener: () => {}
+      };
+
+      function MockGeometry() {
+        this.setAttribute = () => {};
+        this.attributes = {
+          position: { array: new Float32Array(180), needsUpdate: false }
+        };
+      }
+      function MockMaterial() {}
+      function MockMesh() {
+        this.position = { set: () => {} };
+        this.rotation = { x: 0, y: 0, z: 0 };
+        this.geometry = new MockGeometry();
+        this.material = { opacity: 1 };
+      }
+
+      global.THREE = {
+        Scene: function() { this.add = () => {}; this.rotation = { x: 0, y: 0 }; },
+        PerspectiveCamera: function() { this.position = { set: () => {} }; this.lookAt = () => {}; },
+        WebGLRenderer: function() { this.setSize = () => {}; this.setPixelRatio = () => {}; this.render = () => {}; },
+        GridHelper: function() { this.position = {}; this.rotation = {}; this.material = {}; },
+        DodecahedronGeometry: MockGeometry,
+        IcosahedronGeometry: MockGeometry,
+        TorusKnotGeometry: MockGeometry,
+        BufferGeometry: MockGeometry,
+        BufferAttribute: function() {},
+        MeshBasicMaterial: MockMaterial,
+        PointsMaterial: MockMaterial,
+        LineBasicMaterial: MockMaterial,
+        Mesh: MockMesh,
+        Points: MockMesh,
+        LineSegments: MockMesh,
+        AdditiveBlending: 1
+      };
+
+      const cleanup = initMatrixEngine();
+      assert.equal(typeof cleanup, 'function');
+      assert.equal(rAFCount, 1);
+      assert.equal(requestedFrameId, 42);
+
+      cleanup();
+      assert.equal(canceledFrameId, 42);
     });
   });
 

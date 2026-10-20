@@ -525,9 +525,11 @@ if (typeof document !== 'undefined') {
 // ============================================================
 // 9. THREE.JS 3D MATRIX ENGINE — GSAP-Enhanced Parallax & Trails
 // ============================================================
-(function initMatrixEngine() {
+function initMatrixEngine() {
     const canvas = typeof document !== 'undefined' ? document.getElementById('homepage-matrix-canvas') : null;
-    if (!canvas) return;
+    if (!canvas) return null;
+
+    let matrixAnimId = null;
 
     // ---- Scene Setup ----
     const scene = new THREE.Scene();
@@ -689,7 +691,7 @@ if (typeof document !== 'undefined') {
     let lastTrailSpawn = 0;
 
     function animateMatrix(time) {
-        requestAnimationFrame(animateMatrix);
+        matrixAnimId = requestAnimationFrame(animateMatrix);
 
         // ---- Rotate floating geometries ----
         dodec.rotation.x += 0.003;
@@ -785,15 +787,33 @@ if (typeof document !== 'undefined') {
     }
 
     // ---- Handle Resize ----
-    window.addEventListener('resize', () => {
+    const handleResize = () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
-    });
+    };
+
+    if (typeof window !== 'undefined') {
+        window.addEventListener('resize', handleResize);
+    }
 
     // ---- Start Engine ----
     animateMatrix(0);
-})();
+
+    return function cleanup() {
+        if (matrixAnimId) {
+            cancelAnimationFrame(matrixAnimId);
+            matrixAnimId = null;
+        }
+        if (typeof window !== 'undefined') {
+            window.removeEventListener('resize', handleResize);
+        }
+    };
+}
+
+if (typeof document !== 'undefined' && document.getElementById('homepage-matrix-canvas')) {
+    initMatrixEngine();
+}
 
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
@@ -802,6 +822,7 @@ if (typeof module !== 'undefined' && module.exports) {
         TacticalNode,
         formations,
         getCurrentTactic: () => currentTactic,
-        setCurrentTactic: (val) => { currentTactic = val; }
+        setCurrentTactic: (val) => { currentTactic = val; },
+        initMatrixEngine
     };
 }
