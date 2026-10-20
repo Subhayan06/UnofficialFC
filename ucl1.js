@@ -1065,6 +1065,6 @@
 
   // Export for Node.js / testing environments
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { TacticalPitch, HeatmapCanvas };
+    module.exports = { TacticalPitch, HeatmapCanvas, DropletSystem };
   }
 })();

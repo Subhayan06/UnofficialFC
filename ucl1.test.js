@@ -1,6 +1,6 @@
-const { test, describe } = require('node:test');
+const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert/strict');
-const { TacticalPitch, HeatmapCanvas } = require('./ucl1.js');
+const { TacticalPitch, HeatmapCanvas, DropletSystem } = require('./ucl1.js');
 
 describe('TacticalPitch.tweenArray', () => {
   test('returns points array sliced directly if points length >= totalFrames', () => {
@@ -222,5 +222,192 @@ describe('HeatmapCanvas', () => {
       globalThis.requestAnimationFrame = origRaf;
       globalThis.cancelAnimationFrame = origCaf;
     }
+  });
+});
+
+describe('DropletSystem', () => {
+  let originalDocument;
+  let activeSystem = null;
+
+  function createMockDOMContainer() {
+    const children = [];
+
+    function createMockElement(tagName) {
+      const customProps = new Map();
+      const eventListeners = new Map();
+
+      const styleObj = {
+        width: '',
+        height: '',
+        left: '',
+        top: '',
+        animation: '',
+        opacity: '',
+        setProperty: (key, val) => customProps.set(key, String(val)),
+        getPropertyValue: (key) => customProps.get(key) || '',
+      };
+
+      const el = {
+        tagName: tagName.toUpperCase(),
+        className: '',
+        style: styleObj,
+        offsetHeight: 20,
+        addEventListener: (event, handler) => {
+          if (!eventListeners.has(event)) eventListeners.set(event, []);
+          eventListeners.get(event).push(handler);
+        },
+        dispatchEvent: (event) => {
+          const handlers = eventListeners.get(event) || [];
+          handlers.forEach((h) => h());
+        },
+        remove: () => {
+          const idx = children.indexOf(el);
+          if (idx !== -1) children.splice(idx, 1);
+        },
+      };
+
+      return el;
+    }
+
+    const container = {
+      get firstChild() {
+        return children[0] || null;
+      },
+      appendChild: (child) => {
+        children.push(child);
+        return child;
+      },
+      removeChild: (child) => {
+        const idx = children.indexOf(child);
+        if (idx !== -1) children.splice(idx, 1);
+        return child;
+      },
+      getElementsByClassName: (className) => {
+        return {
+          get length() {
+            return children.filter((child) => child.className === className).length;
+          },
+          item: (i) => children.filter((child) => child.className === className)[i] || null,
+          [Symbol.iterator]: function* () {
+            for (const m of children.filter((child) => child.className === className)) yield m;
+          },
+        };
+      },
+      _children: children,
+    };
+
+    return { container, createMockElement, children };
+  }
+
+  beforeEach(() => {
+    originalDocument = globalThis.document;
+    activeSystem = null;
+  });
+
+  afterEach(() => {
+    if (activeSystem) {
+      activeSystem.destroy();
+      activeSystem = null;
+    }
+    globalThis.document = originalDocument;
+  });
+
+  test('initializes properties and generates initial droplet batch', () => {
+    const { container, createMockElement, children } = createMockDOMContainer();
+    globalThis.document = {
+      createElement: (tag) => createMockElement(tag),
+    };
+
+    activeSystem = new DropletSystem(container);
+
+    assert.equal(activeSystem.container, container);
+    assert.equal(activeSystem.maxDroplets, 25);
+    assert.notEqual(activeSystem.intervalId, null);
+    // Constructor calls generate() twice (once directly, once via loop()), adding 3 droplets each time
+    assert.equal(children.length, 6);
+  });
+
+  test('createDroplet creates element with droplet class and styled properties', () => {
+    const { container, createMockElement } = createMockDOMContainer();
+    globalThis.document = {
+      createElement: (tag) => createMockElement(tag),
+    };
+
+    activeSystem = new DropletSystem(container);
+    const el = activeSystem.createDroplet();
+
+    assert.equal(el.className, 'droplet');
+    assert.match(el.style.width, /^\d+(\.\d+)?px$/);
+    assert.match(el.style.height, /^\d+(\.\d+)?px$/);
+    assert.match(el.style.left, /^\d+(\.\d+)?%$/);
+    assert.match(el.style.top, /^-\d+(\.\d+)?px$/);
+
+    assert.match(el.style.getPropertyValue('--drop-duration'), /^\d+(\.\d+)?s$/);
+    assert.equal(el.style.getPropertyValue('--drop-delay'), '0s');
+    assert.match(el.style.getPropertyValue('--drop-distance'), /^\d+(\.\d+)?px$/);
+  });
+
+  test('generate respects maxDroplets capacity and batches up to 3 droplets', () => {
+    const { container, createMockElement, children } = createMockDOMContainer();
+    globalThis.document = {
+      createElement: (tag) => createMockElement(tag),
+    };
+
+    activeSystem = new DropletSystem(container);
+    // Constructor created 6
+    assert.equal(children.length, 6);
+
+    // Call generate again (existing = 6, capacity left = 19, so +3 droplets = 9)
+    activeSystem.generate();
+    assert.equal(children.length, 9);
+
+    // Reset container children to 23 droplets manually
+    children.length = 0;
+    for (let i = 0; i < 23; i++) {
+      const mockEl = createMockElement('div');
+      mockEl.className = 'droplet';
+      children.push(mockEl);
+    }
+    assert.equal(children.length, 23);
+
+    // Call generate again (existing = 23, min(25 - 23, 3) = 2 droplets added)
+    activeSystem.generate();
+    assert.equal(children.length, 25);
+
+    // Call generate again when full (existing = 25 >= maxDroplets)
+    activeSystem.generate();
+    assert.equal(children.length, 25);
+  });
+
+  test('removes droplet from container when animationend event fires', () => {
+    const { container, createMockElement, children } = createMockDOMContainer();
+    globalThis.document = {
+      createElement: (tag) => createMockElement(tag),
+    };
+
+    activeSystem = new DropletSystem(container);
+    assert.equal(children.length, 6);
+
+    const dropletToFinish = children[0];
+    dropletToFinish.dispatchEvent('animationend');
+
+    assert.equal(children.length, 5);
+    assert.equal(children.includes(dropletToFinish), false);
+  });
+
+  test('destroy clears interval timer and removes all children from container', () => {
+    const { container, createMockElement, children } = createMockDOMContainer();
+    globalThis.document = {
+      createElement: (tag) => createMockElement(tag),
+    };
+
+    activeSystem = new DropletSystem(container);
+    assert.notEqual(activeSystem.intervalId, null);
+    assert.equal(children.length, 6);
+
+    activeSystem.destroy();
+
+    assert.equal(activeSystem.intervalId, null);
+    assert.equal(children.length, 0);
   });
 });
