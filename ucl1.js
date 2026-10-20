@@ -79,8 +79,11 @@
     }
 
     resize() {
-      this.canvas.width = this.canvas.offsetWidth || window.innerWidth;
-      this.canvas.height = this.canvas.offsetHeight || window.innerHeight;
+      if (!this.canvas) return;
+      const winW = typeof window !== 'undefined' ? window.innerWidth : 800;
+      const winH = typeof window !== 'undefined' ? window.innerHeight : 600;
+      this.canvas.width = this.canvas.offsetWidth || winW;
+      this.canvas.height = this.canvas.offsetHeight || winH;
       this.w = this.canvas.width;
       this.h = this.canvas.height;
     }
@@ -1065,6 +1068,6 @@
 
   // Export for Node.js / testing environments
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { TacticalPitch, HeatmapCanvas };
+    module.exports = { RainSystem, TacticalPitch, HeatmapCanvas };
   }
 })();

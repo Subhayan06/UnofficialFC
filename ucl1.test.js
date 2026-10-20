@@ -1,6 +1,6 @@
 const { test, describe } = require('node:test');
 const assert = require('node:assert/strict');
-const { TacticalPitch, HeatmapCanvas } = require('./ucl1.js');
+const { RainSystem, TacticalPitch, HeatmapCanvas } = require('./ucl1.js');
 
 describe('TacticalPitch.tweenArray', () => {
   test('returns points array sliced directly if points length >= totalFrames', () => {
@@ -90,6 +90,195 @@ describe('TacticalPitch.tweenArray', () => {
     assert.equal(result.length, pitch.totalFrames);
     for (let i = 0; i < pitch.totalFrames; i++) {
       assert.deepEqual(result[i], [30, 40]);
+    }
+  });
+});
+
+describe('RainSystem', () => {
+  function createMockCanvas(offsetWidth = 800, offsetHeight = 600) {
+    const calls = [];
+    const ctx = {
+      clearRect: (...args) => calls.push(['clearRect', ...args]),
+      beginPath: (...args) => calls.push(['beginPath', ...args]),
+      moveTo: (...args) => calls.push(['moveTo', ...args]),
+      lineTo: (...args) => calls.push(['lineTo', ...args]),
+      stroke: (...args) => calls.push(['stroke', ...args]),
+      strokeStyle: '',
+      lineWidth: 0,
+      globalAlpha: 1,
+    };
+
+    const canvas = {
+      width: 0,
+      height: 0,
+      offsetWidth,
+      offsetHeight,
+      getContext: (type) => (type === '2d' ? ctx : null),
+    };
+
+    return { canvas, ctx, calls };
+  }
+
+  test('initializes with default options and generates drops', () => {
+    const { canvas } = createMockCanvas(800, 600);
+    const rain = new RainSystem(canvas);
+
+    assert.equal(rain.count, 120);
+    assert.equal(rain.speed, 4);
+    assert.equal(rain.length, 12);
+    assert.equal(rain.opacity, 0.35);
+    assert.equal(rain.w, 800);
+    assert.equal(rain.h, 600);
+    assert.equal(rain.drops.length, 120);
+    assert.equal(rain.animId, null);
+
+    const firstDrop = rain.drops[0];
+    assert.ok(typeof firstDrop.x === 'number');
+    assert.ok(typeof firstDrop.y === 'number');
+    assert.ok(firstDrop.vy >= 2 && firstDrop.vy <= 6);
+    assert.ok(firstDrop.len >= 6 && firstDrop.len <= 18);
+    assert.ok(firstDrop.opacity >= 0.15 && firstDrop.opacity <= 0.5);
+  });
+
+  test('initializes with custom options', () => {
+    const { canvas } = createMockCanvas(1000, 500);
+    const opts = { count: 50, speed: 10, length: 25, opacity: 0.8 };
+    const rain = new RainSystem(canvas, opts);
+
+    assert.equal(rain.count, 50);
+    assert.equal(rain.speed, 10);
+    assert.equal(rain.length, 25);
+    assert.equal(rain.opacity, 0.8);
+    assert.equal(rain.w, 1000);
+    assert.equal(rain.h, 500);
+    assert.equal(rain.drops.length, 50);
+
+    const firstDrop = rain.drops[0];
+    assert.ok(firstDrop.vy >= 2 && firstDrop.vy <= 12);
+    assert.ok(firstDrop.len >= 6 && firstDrop.len <= 31);
+    assert.ok(firstDrop.opacity >= 0.15 && firstDrop.opacity <= 0.95);
+  });
+
+  test('handles null canvas safely in constructor and resize', () => {
+    const rain = new RainSystem(null);
+    assert.equal(rain.canvas, null);
+    assert.equal(rain.ctx, null);
+    assert.equal(rain.drops.length, 120);
+
+    // resize should be no-op when canvas is null
+    rain.resize();
+    assert.equal(rain.canvas, null);
+  });
+
+  test('updates particle positions and recycles out-of-bounds drops', () => {
+    const { canvas } = createMockCanvas(800, 600);
+    const rain = new RainSystem(canvas, { count: 2 });
+
+    const initialX0 = rain.drops[0].x;
+    const initialY0 = rain.drops[0].y;
+    const vy0 = rain.drops[0].vy;
+
+    // Force second drop out of bounds
+    rain.drops[1].y = 700; // > h + 20 (620)
+
+    rain.update();
+
+    // First drop should have moved
+    assert.equal(rain.drops[0].y, initialY0 + vy0);
+    assert.equal(rain.drops[0].x, initialX0 + vy0 * 0.15);
+
+    // Second drop should have recycled
+    assert.equal(rain.drops[1].y, -10);
+    assert.ok(rain.drops[1].x >= 0 && rain.drops[1].x <= rain.w);
+  });
+
+  test('recycles drops that move past the right boundary', () => {
+    const { canvas } = createMockCanvas(800, 600);
+    const rain = new RainSystem(canvas, { count: 1 });
+
+    rain.drops[0].x = 850; // > w + 20 (820)
+    rain.update();
+
+    assert.equal(rain.drops[0].y, -10);
+    assert.ok(rain.drops[0].x >= 0 && rain.drops[0].x <= rain.w);
+  });
+
+  test('draw calls required context methods and updates stroke styles', () => {
+    const { canvas, ctx, calls } = createMockCanvas(800, 600);
+    const rain = new RainSystem(canvas, { count: 2 });
+
+    calls.length = 0; // Clear setup calls
+    rain.draw();
+
+    assert.equal(ctx.strokeStyle, 'rgba(180, 200, 255, 0.4)');
+    assert.equal(ctx.lineWidth, 1);
+
+    const methodNames = calls.map((c) => c[0]);
+    assert.ok(methodNames.includes('clearRect'));
+    assert.ok(methodNames.includes('beginPath'));
+    assert.ok(methodNames.includes('moveTo'));
+    assert.ok(methodNames.includes('lineTo'));
+    assert.ok(methodNames.includes('stroke'));
+
+    // Verify clearRect called with full width and height
+    const clearRectCall = calls.find((c) => c[0] === 'clearRect');
+    assert.deepEqual(clearRectCall, ['clearRect', 0, 0, 800, 600]);
+  });
+
+  test('start, loop, stop, and destroy manage animation frame lifecycle', () => {
+    const { canvas, calls } = createMockCanvas(800, 600);
+    const rain = new RainSystem(canvas, { count: 2 });
+
+    let rafCallback = null;
+    let nextId = 1;
+    const origRaf = globalThis.requestAnimationFrame;
+    const origCaf = globalThis.cancelAnimationFrame;
+
+    globalThis.requestAnimationFrame = (cb) => {
+      rafCallback = cb;
+      return nextId++;
+    };
+    globalThis.cancelAnimationFrame = (id) => {
+      if (rain.animId === id) {
+        rain.animId = null;
+      }
+    };
+
+    try {
+      rain.start();
+      assert.equal(rain.animId, 1);
+      assert.notEqual(rafCallback, null);
+
+      // Calling start again when already running should be a no-op
+      rain.start();
+      assert.equal(rain.animId, 1);
+
+      // Execute loop callback
+      const cb = rafCallback;
+      rafCallback = null;
+      cb();
+
+      assert.equal(rain.animId, 2);
+
+      rain.stop();
+      assert.equal(rain.animId, null);
+
+      // Stop when already stopped is a no-op
+      rain.stop();
+      assert.equal(rain.animId, null);
+
+      // Destroy stops animation and clears context
+      rain.start();
+      assert.equal(rain.animId, 3);
+      calls.length = 0;
+
+      rain.destroy();
+      assert.equal(rain.animId, null);
+      const clearRectCall = calls.find((c) => c[0] === 'clearRect');
+      assert.deepEqual(clearRectCall, ['clearRect', 0, 0, 800, 600]);
+    } finally {
+      globalThis.requestAnimationFrame = origRaf;
+      globalThis.cancelAnimationFrame = origCaf;
     }
   });
 });
