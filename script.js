@@ -176,8 +176,8 @@ if (glowBg) {
 // ============================================================
 // 5. SCROLL REVEAL — GSAP-powered (kept simple)
 // ============================================================
+const reveals = typeof document !== 'undefined' ? document.querySelectorAll('.reveal') : [];
 function reveal() {
-    const reveals = document.querySelectorAll('.reveal');
     reveals.forEach(el => {
         const windowHeight = window.innerHeight;
         const elementTop = el.getBoundingClientRect().top;

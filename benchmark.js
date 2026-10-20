@@ -129,7 +129,51 @@ function runBenchmark(nodeCount, iterations) {
     console.log(`Speedup:     ${speedup}x (${pct}% faster)\n`);
 }
 
+function runScrollRevealBenchmark(iterations) {
+    const mockElements = Array.from({ length: 20 }, (_, i) => ({
+        className: 'reveal',
+        getBoundingClientRect: () => ({ top: i * 50 })
+    }));
+
+    const mockDocument = {
+        querySelectorAll: (selector) => mockElements.filter(el => el.className === selector.replace('.', ''))
+    };
+
+    // Warmup
+    for (let i = 0; i < 1000; i++) {
+        mockDocument.querySelectorAll('.reveal').forEach(el => el.getBoundingClientRect());
+    }
+
+    // Unoptimized: query inside scroll callback
+    const startUnopt = performance.now();
+    for (let i = 0; i < iterations; i++) {
+        const reveals = mockDocument.querySelectorAll('.reveal');
+        reveals.forEach(el => {
+            const top = el.getBoundingClientRect().top;
+        });
+    }
+    const durationUnopt = performance.now() - startUnopt;
+
+    // Optimized: query outside scroll callback
+    const revealsCached = mockDocument.querySelectorAll('.reveal');
+    const startOpt = performance.now();
+    for (let i = 0; i < iterations; i++) {
+        revealsCached.forEach(el => {
+            const top = el.getBoundingClientRect().top;
+        });
+    }
+    const durationOpt = performance.now() - startOpt;
+
+    const speedup = (durationUnopt / durationOpt).toFixed(2);
+    const pct = (((durationUnopt - durationOpt) / durationUnopt) * 100).toFixed(2);
+    console.log(`--- Scroll Reveal Query Benchmark (Iterations: ${iterations}) ---`);
+    console.log(`Unoptimized (query inside scroll listener): ${durationUnopt.toFixed(3)} ms`);
+    console.log(`Optimized   (cached query outside listener): ${durationOpt.toFixed(3)} ms`);
+    console.log(`Speedup:                                   ${speedup}x (${pct}% faster)\n`);
+}
+
 console.log("Running benchmarks...\n");
 runBenchmark(16, 50000);
 runBenchmark(50, 20000);
 runBenchmark(200, 1000);
+runScrollRevealBenchmark(100000);
